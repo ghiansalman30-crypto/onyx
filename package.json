@@ -1,0 +1,12 @@
+{
+  "name": "orrery",
+  "private": true,
+  "version": "0.1.0",
+  "description": "ORRERY: mine from your terminal with SHA-256 proof-of-work",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "viem": "2.21.54"
+  }
+}

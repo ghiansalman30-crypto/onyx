@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>ORRERY · An agent that keeps every task in orbit</title>
+<title>ORRERY · Mine from your terminal</title>
 <link rel="icon" href="logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -95,6 +95,34 @@ h2{font-size:clamp(2.1rem,4.6vw,4.4rem);line-height:.98}
 .form button{border:0;border-radius:999px;background:var(--ink);color:#f4f1ec;font:500 .78rem var(--sans);padding:.65rem 1.2rem;cursor:pointer}
 .form:focus-within{border-color:var(--muted)}
 .note{min-height:1.2em;margin:.9rem 0 0;font:400 .7rem var(--mono);color:var(--muted)}
+button.launch{border:0;cursor:pointer;font-family:var(--sans)}
+
+/* network */
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;margin-top:2.4rem;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden;align-self:stretch}
+.stats>div{background:color-mix(in srgb,#fff 62%,transparent);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:1.2rem 1.3rem 1.3rem;display:grid;gap:.5rem}
+.stats b{font:500 .64rem/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.stats strong{font-size:clamp(1.4rem,2.4vw,2rem);font-weight:300;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.stats small{font:400 .68rem var(--mono);color:var(--muted)}
+.tables{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;align-self:stretch}
+.tbl{border:1px solid var(--line);border-radius:16px;overflow:auto;background:color-mix(in srgb,#fff 62%,transparent);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.tbl h3{margin:0;padding:1rem 1.2rem .6rem;font-size:.9rem;font-weight:500}
+.tbl table{width:100%;border-collapse:collapse;font:400 .74rem/1.4 var(--mono);font-variant-numeric:tabular-nums}
+.tbl th{text-align:left;font-weight:500;color:var(--muted);padding:.5rem 1.2rem;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td{padding:.5rem 1.2rem;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl tr:last-child td{border-bottom:0}
+
+/* key box */
+.keybox{margin-top:2rem;width:min(40rem,100%);text-align:left;border:1px solid var(--line);border-radius:16px;padding:1.3rem;background:color-mix(in srgb,#fff 55%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.keybox[hidden]{display:none}
+.keybox .label{margin-bottom:.6rem}
+.addr{margin:0 0 1rem;font:400 .8rem var(--mono);word-break:break-all}
+.cmd{display:grid;grid-template-columns:6.5rem 1fr auto;gap:.6rem;align-items:center;padding:.55rem 0;border-top:1px solid var(--line)}
+.cmd span{font:500 .64rem var(--mono);letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+.cmd code{font:400 .76rem var(--mono);word-break:break-all}
+.cmd button{appearance:none;border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:999px;padding:.35rem .8rem;font:500 .68rem var(--mono);cursor:pointer}
+.bal{margin:1rem 0 .4rem;font-size:.86rem}
+.fine{margin:0;font:400 .68rem/1.5 var(--mono);color:var(--muted)}
+
 footer{position:relative;z-index:2;display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem;padding:1.4rem var(--pad) calc(env(safe-area-inset-bottom,0px) + 1.4rem);border-top:1px solid var(--line);font:400 .68rem var(--mono);color:var(--faint)}
 footer a{color:var(--muted);text-decoration:none;margin-left:1.2rem}
 
@@ -132,6 +160,10 @@ input[type=range]{width:100%;accent-color:var(--ink)}
   .right .label{flex-direction:row}
   section{justify-content:flex-end}
   .steps{grid-template-columns:1fr 1fr}
+  .stats{grid-template-columns:1fr 1fr}
+  .tables{grid-template-columns:1fr}
+  .cmd{grid-template-columns:1fr auto}
+  .cmd span{grid-column:1 / -1}
   .k-hero .status{display:none}
 }
 @media (prefers-reduced-motion:reduce){
@@ -176,42 +208,43 @@ input[type=range]{width:100%;accent-color:var(--ink)}
 const CONFIG = {
   brand: "ORRERY",
   coreSize: .68,          // overall size of the sphere and everything orbiting it (1 = original)
-  launch: "Launch agent",
-  links: [["Agent","#capabilities"],["How it works","#how"],["Live run","#demo"],["Access","#access"]],
+  launch: "Connect wallet",
+  links: [["How it works","#how"],["Economy","#economy"],["Network","#network"],["Mine","#access"]],
   sections: [
     { id:"top", kind:"hero", pose:{ pos:[1.2, .22], scale:1, turb:.5, shape:"sphere", veil:1 },
-      label:"Autonomous agent · v0.9",
-      title:"Every task,<br>kept in orbit",
-      body:"Orrery is an AI agent that plans, researches and executes multi-step work on its own, then reports back with sources you can check.",
-      status:["agent online","latency 212 ms","tools 14 connected"] },
-    { id:"capabilities", kind:"caps", side:"left", pose:{ pos:[1.55, 0], scale:.86, turb:.8, shape:"cube", veil:.35 },
-      label:"What it does", title:"One core,<br>many hands",
-      items:[["Research","Reads the web, your docs and your data, and keeps a trail of every source it used."],
-             ["Execute","Runs tools, writes code and fills forms in a sandbox, asking before anything irreversible."],
-             ["Report","Hands back a short summary, the evidence, and what it would do next."]] },
+      label:"SHA-256 · Proof-of-work",
+      title:"Mine it<br>from orbit",
+      body:"ORRERY is a coin you mine from your terminal. Connect a wallet, take your API key, and let your CPU hash. Every minute a fixed amount is split between that round's miners.",
+      status:["network —","hashrate —","round ends —"] },
+    { id:"economy", kind:"caps", side:"left", pose:{ pos:[1.55, 0], scale:.86, turb:.8, shape:"cube", veil:.35 },
+      label:"Economy", title:"Fixed supply,<br>fair rounds",
+      items:[["One round a minute","Each round releases the same amount of ORRERY, split between its miners by the work they proved."],
+             ["Halving every 30 days","Emission halves on a schedule, so the total supply is capped at 50,000,000 ORRERY."],
+             ["Any CPU","Difficulty tunes itself per miner to about one share every 20 seconds. More machines only compete for the same emission."]] },
     { id:"how", kind:"steps", side:"right", pose:{ pos:[-1.75, .5], scale:.82, turb:.35, shape:"torus", veil:.3 },
-      label:"How it works", title:"Plan, act,<br>check, repeat",
-      steps:[["Plan","Breaks your goal into steps and shows you the plan first."],
-             ["Act","Calls the right tool for each step and records the result."],
-             ["Check","Verifies its own output against your rules and the sources."],
-             ["Learn","Remembers what worked, so the next run starts smarter."]] },
+      label:"How it works", title:"Connect, install,<br>mine",
+      steps:[["Connect","Sign in with your wallet. No password, no fee: the signature only proves the wallet is yours."],
+             ["Install","Install the CLI with npm. It needs Node.js 18 or newer."],
+             ["Log in","Paste your API key once: orrery login &lt;API_KEY&gt;."],
+             ["Mine","Run orrery mine. Every round, your share of the emission lands in your balance."]] },
     { id:"demo", kind:"demo", side:"left", pose:{ pos:[1.7, -.1], scale:.78, turb:1.2, shape:"star", veil:.4 },
-      label:"Live run", title:"Watch it<br>think out loud",
+      label:"Sample session", title:"Your CPU,<br>in orbit",
       log:[
-        ['c','$ orrery run "weekly competitor brief"'],
-        ['t','◐ planning   5 steps'],
-        ['','  → search news for 6 companies'],
-        ['','  → pull pricing pages, diff vs last week'],
-        ['','  → summarise launches and changes'],
-        ['g','✓ sources    23 pages, 4 changes found'],
-        ['g','✓ verified   every claim has a link'],
-        ['t','◑ drafting   brief.md (412 words)'],
-        ['g','✓ done in 1m 48s · sent to #strategy']
+        ['c','$ orrery mine'],
+        ['t','Mining as 0x8f3a…e91d on 7 threads'],
+        ['','  ◐ 2.41 MH/s   share accepted   bits 25'],
+        ['','  ◓ 2.39 MH/s   share accepted   bits 25'],
+        ['g','✓ round 29893812 closed · 6 miners'],
+        ['g','✓ paid 96.45 ORRERY for 3 shares'],
+        ['','  ◑ 2.44 MH/s   share accepted   bits 26'],
+        ['t','  round ends in 41 s'],
+        ['g','✓ earned 1,204.88 ORRERY today']
       ] },
+    { id:"network", kind:"network", side:"left", pose:{ pos:[1.75, .62], scale:.5, turb:.9, shape:"disc", veil:.3 },
+      label:"Network · live", title:"Every round,<br>on the record" },
     { id:"access", kind:"access", pose:{ pos:[0, .45], scale:1.12, turb:1.6, shape:"spindle", veil:.55 },
-      label:"Early access", title:"Put it<br>to work",
-      body:"We are opening the agent to a small group first. Leave your email and we will reach out when your seat is ready.",
-      cta:"Request access", placeholder:"you@company.com" }
+      label:"Start mining", title:"Put your CPU<br>to work",
+      body:"Free, no password, just a wallet. Sign once to get your API key, then mine from any terminal." }
   ],
   footer:{ left:"© ORRERY LABS", links:[["Docs","#"],["X","#"],["GitHub","#"]] },
   // each tint: c1/c2/c3 flow across the core, edge colours the torn rims, ring colours the orbits
@@ -244,24 +277,111 @@ $("main").innerHTML = CONFIG.sections.map(s => {
   let inner = "";
   if (s.kind === "hero") inner = `<div class="half">${head(s)}<p class="lede rv" style="--d:2">${s.body}</p>
       <div class="btns rv" style="--d:3"><a class="launch" href="#access">${CONFIG.launch}</a><a class="ghost" href="#how">See how it works</a></div></div>
-      <div class="status rv" style="--d:4">${s.status.map((t,i) => `<span>${i === 0 ? '<i class="dot"></i>' : ""}${t}</span>`).join("")}</div>
+      <div class="status rv" style="--d:4">${s.status.map((t,i) => `<span>${i === 0 ? '<i class="dot"></i>' : ""}<span id="hs${i}">${t}</span></span>`).join("")}</div>
       <div class="scroll rv" style="--d:5">SCROLL<i></i></div>`;
   if (s.kind === "caps") inner = `<div class="half">${head(s)}<ul class="caps">${s.items.map(([h,p],i) => `<li class="rv" style="--d:${i+2}"><b>0${i+1}</b><div><h3>${h}</h3><p>${p}</p></div></li>`).join("")}</ul></div>`;
   if (s.kind === "steps") inner = `<div class="half">${head(s)}</div><div class="steps">${s.steps.map(([h,p],i) => `<div class="step rv" style="--d:${i+2}"><b>0${i+1} /</b><h3>${h}</h3><p>${p}</p></div>`).join("")}</div>`;
-  if (s.kind === "demo") inner = `<div class="half">${head(s)}</div><div class="term rv" style="--d:2"><header><i></i><i></i><i></i><span>agent.log</span></header><pre id="log" aria-live="polite"></pre></div>`;
+  if (s.kind === "demo") inner = `<div class="half">${head(s)}</div><div class="term rv" style="--d:2"><header><i></i><i></i><i></i><span>orrery mine · simulated</span></header><pre id="log" aria-live="polite"></pre></div>`;
+  if (s.kind === "network") inner = `<div class="half">${head(s)}</div>
+      <div class="stats rv" style="--d:2">
+        <div><b>Active miners</b><strong id="n-miners">—</strong><small>last 10 minutes</small></div>
+        <div><b>Hashrate</b><strong id="n-rate">—</strong><small>estimated from shares</small></div>
+        <div><b>Current round</b><strong id="n-round">—</strong><small id="n-left">—</small></div>
+        <div><b>In circulation</b><strong id="n-circ">—</strong><small id="n-emit">—</small></div>
+      </div>
+      <div class="tables rv" style="--d:3">
+        <div class="tbl"><h3>Latest rounds</h3><table><thead><tr><th>Round</th><th>Ended</th><th>Miners</th><th>Shares</th><th>Paid out</th></tr></thead><tbody id="n-rounds"><tr><td colspan="5">Loading…</td></tr></tbody></table></div>
+        <div class="tbl"><h3>Leaderboard</h3><table><thead><tr><th>#</th><th>Miner</th><th>Shares</th><th>Earned</th><th>Last active</th></tr></thead><tbody id="n-board"><tr><td colspan="5">Loading…</td></tr></tbody></table></div>
+      </div>`;
   if (s.kind === "access") inner = `${head(s)}<p class="lede rv" style="--d:2">${s.body}</p>
-      <form class="form rv" style="--d:3" id="accessForm"><label class="sr-only" for="email">Email</label><input id="email" type="email" required placeholder="${s.placeholder}"><button type="submit">${s.cta}</button></form><p class="note" id="note" aria-live="polite"></p>`;
+      <div class="btns rv" style="--d:3"><button class="launch" type="button" id="connect">${CONFIG.launch}</button></div>
+      <div class="keybox" id="keybox" hidden>
+        <p class="label">Your miner</p>
+        <p class="addr" id="k-addr"></p>
+        <div class="cmd"><span>API key</span><code id="k-key"></code><button type="button" data-copy="k-key">Copy</button></div>
+        <div class="cmd"><span>1 · Install</span><code id="k-install"></code><button type="button" data-copy="k-install">Copy</button></div>
+        <div class="cmd"><span>2 · Log in</span><code id="k-login"></code><button type="button" data-copy="k-login">Copy</button></div>
+        <div class="cmd"><span>3 · Mine</span><code>orrery mine</code><button type="button" data-copy-text="orrery mine">Copy</button></div>
+        <p class="bal">Earned <strong id="k-earned">0</strong> ORRERY · <span id="k-shares">0</span> shares</p>
+        <p class="fine">This key is shown once. Keep it private: anyone with it can mine into your balance. Signing in again makes a new key and turns the old one off.</p>
+      </div>
+      <p class="note" id="note" aria-live="polite"></p>`;
   const cls = ["k-" + s.kind, s.side === "right" ? "right" : ""].join(" ");
   return `<section id="${s.id}" class="${cls}">${inner}</section>`;
 }).join("");
 $("footer").innerHTML = `<span>${CONFIG.footer.left} ${new Date().getFullYear()}</span><span>${CONFIG.footer.links.map(([t,h]) => `<a href="${h}">${t}</a>`).join("")}</span>`;
-$("accessForm").addEventListener("submit", e => { e.preventDefault(); $("note").textContent = "Thanks. You are on the list; we will email " + $("email").value + "."; e.target.reset(); });
+$("launch").addEventListener("click", e => { e.preventDefault(); $("access").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" }); setTimeout(connect, reduceMotion ? 0 : 600); });
+
+/* ---------- mining: live network stats ---------- */
+const fmtN = (n, d = 0) => Number(n).toLocaleString("en-US", { maximumFractionDigits: d });
+const fmtRate = h => h >= 1e9 ? fmtN(h/1e9, 2) + " GH/s" : h >= 1e6 ? fmtN(h/1e6, 2) + " MH/s" : h >= 1e3 ? fmtN(h/1e3, 1) + " kH/s" : fmtN(h) + " H/s";
+const short = a => a.slice(0, 6) + "…" + a.slice(-4);
+const ago = t => { if (!t) return "—"; const s = Math.max(0, Math.round((Date.now() - t)/1000)); return s < 60 ? s + "s ago" : s < 3600 ? Math.round(s/60) + "m ago" : Math.round(s/3600) + "h ago"; };
+const escH = t => String(t).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" })[c]);
+let net = null, skew = 0;
+async function refreshStats(){
+  try {
+    const r = await fetch("/api/stats", { cache: "no-store" });
+    net = await r.json(); skew = net.serverTime - Date.now();
+    $("n-miners").textContent = fmtN(net.activeMiners);
+    $("n-rate").textContent = fmtRate(net.hashrate);
+    $("n-round").textContent = "#" + net.round;
+    $("n-circ").textContent = fmtN(net.circulating);
+    $("n-emit").textContent = fmtN(net.emissionPerRound, 1) + " / round · max " + fmtN(net.maxSupply);
+    $("hs0").textContent = net.activeMiners + (net.activeMiners === 1 ? " miner online" : " miners online");
+    $("hs1").textContent = "hashrate " + fmtRate(net.hashrate);
+    $("n-rounds").innerHTML = net.rounds.length ? net.rounds.map(r => `<tr><td>#${r.id}</td><td>${ago(r.ended)}</td><td>${r.miners}</td><td>${r.shares}</td><td>${fmtN(r.emission, 1)}</td></tr>`).join("") : `<tr><td colspan="5">No rounds mined yet</td></tr>`;
+    $("n-board").innerHTML = net.leaderboard.length ? net.leaderboard.map((m, i) => `<tr><td>${i+1}</td><td title="${escH(m.address)}">${escH(short(m.address))}</td><td>${fmtN(m.shares)}</td><td>${fmtN(m.earned, 1)}</td><td>${ago(m.lastShare)}</td></tr>`).join("") : `<tr><td colspan="5">Be the first miner</td></tr>`;
+  } catch (e) { $("hs0").textContent = "network offline"; }
+}
+setInterval(() => {
+  if (!net) return;
+  const left = Math.max(0, Math.ceil((net.roundEndsAt - (Date.now() + skew))/1000));
+  $("n-left").textContent = "ends in " + left + "s"; $("hs2").textContent = "round ends " + left + "s";
+  if (left === 0) refreshStats();
+}, 1000);
+refreshStats(); setInterval(refreshStats, 15000);
+
+/* ---------- mining: wallet sign-in ---------- */
+let myKey = null;
+async function connect(){
+  const note = $("note");
+  if (!window.ethereum) { note.textContent = "No wallet found. Install MetaMask, OKX Wallet or Rabby, then try again."; return; }
+  try {
+    note.textContent = "Waiting for your wallet…";
+    const [address] = await window.ethereum.request({ method: "eth_requestAccounts" });
+    const { message } = await (await fetch("/api/auth/nonce?address=" + address)).json();
+    note.textContent = "Sign the message in your wallet. It is free and moves no funds.";
+    const hex = "0x" + [...new TextEncoder().encode(message)].map(b => b.toString(16).padStart(2, "0")).join("");
+    const signature = await window.ethereum.request({ method: "personal_sign", params: [hex, address] });
+    const r = await fetch("/api/auth/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ address, signature }) });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || "sign-in failed");
+    myKey = j.apiKey;
+    $("k-addr").textContent = j.address; $("k-key").textContent = j.apiKey;
+    $("k-install").textContent = "npm install -g " + location.origin + "/orrery-cli.tgz";
+    $("k-login").textContent = "orrery login " + j.apiKey + (location.origin === "http://127.0.0.1:4000" ? "" : " --server " + location.origin);
+    $("keybox").hidden = false; $("connect").textContent = "Sign in again (new key)";
+    note.textContent = ""; refreshMe();
+  } catch (e) { note.textContent = e.code === 4001 ? "Cancelled in the wallet." : "Could not sign in: " + e.message; }
+}
+async function refreshMe(){
+  if (!myKey) return;
+  try { const me = await (await fetch("/api/me", { headers: { Authorization: "Bearer " + myKey } })).json(); $("k-earned").textContent = fmtN(me.earned, 4); $("k-shares").textContent = fmtN(me.shares); } catch (e) {}
+}
+setInterval(refreshMe, 15000);
+$("connect").addEventListener("click", connect);
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-copy],[data-copy-text]"); if (!b) return;
+  const text = b.dataset.copyText || $(b.dataset.copy).textContent;
+  navigator.clipboard.writeText(text).then(() => { const t = b.textContent; b.textContent = "Copied"; setTimeout(() => b.textContent = t, 1200); }).catch(() => {});
+});
 
 const sections = [...document.querySelectorAll("main section")];
 const navLinks = [...document.querySelectorAll(".links a")];
 const io = new IntersectionObserver(es => es.forEach(e => {
   if (e.isIntersecting) { e.target.classList.add("in"); if (e.target.id === "demo") playLog(); navLinks.forEach(a => a.setAttribute("aria-current", a.getAttribute("href") === "#" + e.target.id)); }
-}), { threshold:.35 });
+}), { threshold:.15 }); // low enough that tall sections (network tables on phones) still reveal
 sections.forEach(s => io.observe(s));
 
 /* typed agent log */
