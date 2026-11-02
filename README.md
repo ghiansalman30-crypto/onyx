@@ -13,4 +13,12 @@ A coin you mine from the terminal with SHA-256 proof-of-work.
 
 Economy: MAX_SUPPLY 50,000,000; emission per round = MAX_SUPPLY / (2 x rounds per 30 days) = 578.7.
 
+Anti-bot: every miner re-signs with its wallet on the website every 30 min (CHECK_EVERY_MIN), and at most
+3 wallets may mine from one IP at a time (MAX_WALLETS_PER_IP). Behind a reverse proxy set TRUST_PROXY=1.
+
+Backups: data/backups/ gets a full copy of the ledger every hour (last 48 kept). Restore by stopping the
+server and copying one over data/onyx.db.
+
+Public ledger: GET /api/round?id=N lists every payout of a round.
+
 Balances are an off-chain ledger. Paying them out as a real token is not built yet.

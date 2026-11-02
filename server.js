@@ -35,6 +35,11 @@ const MIN_BITS = 12, MAX_BITS = 40, START_BITS = 20;
 const CHALLENGE_TTL_MS = 5 * 60_000;
 const MAX_OPEN_CHALLENGES = 64; // per miner, enough for one per CPU core
 const ACTIVE_WINDOW_MS = 10 * 60_000;
+// anti-bot: every miner re-confirms with a wallet signature on the website this often, or new work pauses
+const CHECK_EVERY_MS = Number(process.env.CHECK_EVERY_MIN || 30) * 60_000;
+// anti-farm: how many different wallets may mine from one IP at the same time
+const MAX_WALLETS_PER_IP = Number(process.env.MAX_WALLETS_PER_IP || 3);
+const BACKUP_EVERY_MS = 60 * 60_000, BACKUPS_KEPT = 48;
 
 // ---------- storage ----------
 fs.mkdirSync(DATA, { recursive: true });
@@ -52,6 +57,22 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS share_log (ts INTEGER, address TEXT, work REAL);
   CREATE INDEX IF NOT EXISTS share_log_ts ON share_log (ts);
 `);
+try { db.exec("ALTER TABLE miners ADD COLUMN checked_at INTEGER"); } catch { /* column already there */ }
+
+// hourly snapshot of the whole ledger to data/backups, keeping the last BACKUPS_KEPT
+const BACKUPS = path.join(DATA, "backups");
+function backup() {
+  try {
+    fs.mkdirSync(BACKUPS, { recursive: true });
+    const file = path.join(BACKUPS, `onyx-${new Date().toISOString().replace(/[:.]/g, "-")}.db`);
+    db.exec(`VACUUM INTO '${file.replace(/'/g, "''")}'`);
+    const all = fs.readdirSync(BACKUPS).filter((f) => f.endsWith(".db")).sort();
+    for (const old of all.slice(0, Math.max(0, all.length - BACKUPS_KEPT))) fs.unlinkSync(path.join(BACKUPS, old));
+  } catch (e) { console.error("backup failed:", e.message); }
+}
+setTimeout(backup, 5_000);
+setInterval(backup, BACKUP_EVERY_MS);
+
 const getMeta = (k) => db.prepare("SELECT v FROM meta WHERE k = ?").get(k)?.v;
 const setMeta = (k, v) => db.prepare("INSERT INTO meta (k, v) VALUES (?, ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v").run(k, String(v));
 if (!getMeta("genesis")) setMeta("genesis", Date.now());
@@ -151,12 +172,27 @@ function limited(req, kind) {
   return ++h.n > LIMITS[kind];
 }
 
+const checkDue = (m) => !m.checked_at || Date.now() - m.checked_at > CHECK_EVERY_MS;
+
+// which wallets mined from which IP recently: ip -> Map(address -> lastSeen)
+const ipWallets = new Map();
+setInterval(() => { const cut = Date.now() - ACTIVE_WINDOW_MS; for (const [ip, m] of ipWallets) { for (const [a, t] of m) if (t < cut) m.delete(a); if (!m.size) ipWallets.delete(ip); } }, 60_000);
+function ipAllows(req, address) {
+  const ip = clientIp(req), now = Date.now(), cut = now - ACTIVE_WINDOW_MS;
+  let m = ipWallets.get(ip);
+  if (!m) { m = new Map(); ipWallets.set(ip, m); }
+  for (const [a, t] of m) if (t < cut) m.delete(a);
+  if (!m.has(address) && m.size >= MAX_WALLETS_PER_IP) return false;
+  m.set(address, now);
+  return true;
+}
+
 // security headers for every page: no framing (protects the wallet sign-in), no sniffing, scripts only from here and cdnjs
 const PAGE_HEADERS = {
   "X-Content-Type-Options": "nosniff",
   "X-Frame-Options": "DENY",
   "Referrer-Policy": "strict-origin-when-cross-origin",
-  "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'",
+  "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'",
 };
 
 // ---------- api ----------
@@ -183,11 +219,21 @@ async function api(req, res, url) {
     });
   }
 
+  // public ledger: what every miner was paid in one round, so anyone can check the split
+  if (route === "GET /api/round") {
+    const id = Number(url.searchParams.get("id"));
+    const r = Number.isInteger(id) && db.prepare("SELECT id, ended, miners, shares, work, emission FROM rounds WHERE id = ?").get(id);
+    if (!r) return send(res, 404, { error: "round not found" });
+    const payouts = db.prepare("SELECT address, shares, work FROM round_work WHERE round = ? ORDER BY work DESC").all(id)
+      .map((p) => ({ ...p, paid: r.work > 0 ? r.emission * (p.work / r.work) : 0 }));
+    return send(res, 200, { ...r, payouts });
+  }
+
   if (route === "GET /api/auth/nonce") {
     const address = url.searchParams.get("address");
     if (!isAddress(address)) return send(res, 400, { error: "invalid address" });
     const nonce = crypto.randomBytes(16).toString("hex");
-    logins.set(address.toLowerCase(), { nonce, expires: Date.now() + 5 * 60_000 });
+    logins.set(address.toLowerCase(), { nonce, address, expires: Date.now() + 5 * 60_000 }); // keep the exact spelling: it is part of the signed text
     return send(res, 200, { message: loginMessage(address, nonce) });
   }
 
@@ -203,21 +249,38 @@ async function api(req, res, url) {
     // a fresh key on every sign-in; the old one stops working (only its hash is stored)
     const apiKey = "onyx_" + crypto.randomBytes(20).toString("hex");
     const addr = address.toLowerCase();
-    db.prepare(`INSERT INTO miners (address, api_key_hash, created, bits, shares, earned) VALUES (?, ?, ?, ?, 0, 0)
-      ON CONFLICT(address) DO UPDATE SET api_key_hash = excluded.api_key_hash`).run(addr, hashKey(apiKey), Date.now(), START_BITS);
+    db.prepare(`INSERT INTO miners (address, api_key_hash, created, bits, shares, earned, checked_at) VALUES (?, ?, ?, ?, 0, 0, ?)
+      ON CONFLICT(address) DO UPDATE SET api_key_hash = excluded.api_key_hash, checked_at = excluded.checked_at`).run(addr, hashKey(apiKey), Date.now(), START_BITS, Date.now());
     return send(res, 200, { apiKey, address: addr });
+  }
+
+  // anti-bot check: the miner signs a fresh message with the same wallet; this keeps the key, it only resets the timer
+  if (route === "POST /api/check") {
+    const m = minerFromAuth(req);
+    if (!m) return send(res, 401, { error: "invalid API key" });
+    const { signature } = await readBody(req);
+    const pending = logins.get(m.address);
+    if (!pending || pending.expires < Date.now() || typeof signature !== "string") return send(res, 400, { error: "check expired, try again" });
+    logins.delete(m.address);
+    const { verifyMessage } = await import("viem");
+    const ok = await verifyMessage({ address: m.address, message: loginMessage(pending.address, pending.nonce), signature }).catch(() => false);
+    if (!ok) return send(res, 401, { error: "signature does not match this miner's wallet" });
+    db.prepare("UPDATE miners SET checked_at = ? WHERE address = ?").run(Date.now(), m.address);
+    return send(res, 200, { ok: true, checkDueAt: Date.now() + CHECK_EVERY_MS });
   }
 
   if (route === "GET /api/me") {
     const m = minerFromAuth(req);
     if (!m) return send(res, 401, { error: "invalid API key" });
     const cur = db.prepare("SELECT shares FROM round_work WHERE round = ? AND address = ?").get(roundOf(Date.now()), m.address);
-    return send(res, 200, { address: m.address, earned: m.earned, shares: m.shares, bits: m.bits, roundShares: cur?.shares || 0 });
+    return send(res, 200, { address: m.address, earned: m.earned, shares: m.shares, bits: m.bits, roundShares: cur?.shares || 0, checkDueAt: (m.checked_at || 0) + CHECK_EVERY_MS });
   }
 
   if (route === "POST /api/mine/challenge") {
     const m = minerFromAuth(req);
     if (!m) return send(res, 401, { error: "invalid API key" });
+    if (checkDue(m)) return send(res, 403, { error: "anti-bot check due: open the website and press Confirm", check: true });
+    if (!ipAllows(req, m.address)) return send(res, 429, { error: `only ${MAX_WALLETS_PER_IP} wallets may mine from one network at a time`, ipLimit: true });
     const c = newChallenge(m);
     return c ? send(res, 200, c) : send(res, 429, { error: "too many open challenges" });
   }
@@ -245,7 +308,7 @@ async function api(req, res, url) {
     db.prepare(`INSERT INTO round_work (round, address, work, shares) VALUES (?, ?, ?, 1)
       ON CONFLICT(round, address) DO UPDATE SET work = work + excluded.work, shares = shares + 1`).run(round, m.address, work);
     db.prepare("INSERT INTO share_log (ts, address, work) VALUES (?, ?, ?)").run(now, m.address, work);
-    return send(res, 200, { accepted: true, work, round, next: newChallenge({ ...m, bits }) });
+    return send(res, 200, { accepted: true, work, round, next: checkDue(m) ? null : newChallenge({ ...m, bits }) });
   }
 
   return send(res, 404, { error: "not found" });

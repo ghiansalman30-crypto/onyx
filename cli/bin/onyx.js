@@ -60,7 +60,9 @@ async function mine() {
       } catch (e) {
         lastErr = e.message;
         if (e.status === 401) { console.error("\nAPI key rejected. Sign in again on the website and run onyx login."); process.exit(1); }
-        setTimeout(() => next(), 3000);
+        // 403: the 30-minute anti-bot check is due (confirm on the website); 429: too many wallets on this network
+        if (e.status === 403) lastErr = "paused: anti-bot check due, open " + server + " and press Confirm";
+        setTimeout(() => next(), e.status === 403 || e.status === 429 ? 15000 : 3000);
       }
     };
     w.on("message", async (m) => {
