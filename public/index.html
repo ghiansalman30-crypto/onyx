@@ -11,7 +11,7 @@
 <style>
 :root{
   /* palette: Charcoal #2A2529 + Pale Ivory #F3F0E7 */
-  --bg:#f3f0e7; --ivory:#f3f0e7; --ink:#2a2529; --muted:#6b6467; --faint:#a39d9b; --line:rgba(42,37,41,.14); --chip:rgba(243,240,231,.62);
+  --bg:#f3f0e7; --ivory:#f3f0e7; --ink:#2a2529; --muted:#554e52; --faint:#a39d9b; --line:rgba(42,37,41,.14); --chip:rgba(243,240,231,.62);
   --tint:#2a2529; --ok:#2a2529;
   --pad:clamp(18px,3.4vw,48px);
   --sans:Geist,"Helvetica Neue",Arial,sans-serif; --mono:"Geist Mono",ui-monospace,Menlo,monospace;
@@ -251,17 +251,14 @@ const CONFIG = {
   // each tint: c1/c2/c3 flow across the core, edge colours the torn rims, ring colours the orbits
   tints:{
     onyx:    { label:"Onyx",     c1:"#6e676b", c2:"#f3f0e7", c3:"#2a2529", edge:"#f3f0e7", ring:"#2a2529" },
-    graphite:{ label:"Graphite", c1:"#8c8c8c", c2:"#d9d9d9", c3:"#5a5a5a", edge:"#f0f0f0", ring:"#8a8a8a" },
-    silver:  { label:"Silver",   c1:"#b5b5b5", c2:"#f2f2f2", c3:"#848484", edge:"#ffffff", ring:"#a8a8a8" },
-    steel:   { label:"Steel",    c1:"#7f8790", c2:"#cfd5db", c3:"#545b63", edge:"#e8eef4", ring:"#7c858e" },
-    smoke:   { label:"Smoke",    c1:"#8f8a84", c2:"#d6d1cb", c3:"#5e5955", edge:"#efebe6", ring:"#8a857f" },
-    mono:    { label:"White",    c1:"#f4f4f2", c2:"#bdbdbb", c3:"#ffffff", edge:"#ffffff", ring:"#9a9a98" }
+    charcoal:{ label:"Charcoal", c1:"#4a4347", c2:"#8a8386", c3:"#2a2529", edge:"#f3f0e7", ring:"#2a2529" },
+    ivory:   { label:"Ivory",    c1:"#f3f0e7", c2:"#cfc9bd", c3:"#faf8f2", edge:"#f3f0e7", ring:"#554e52" }
   },
-  defaults:{ tint:"onyx", shards:40, chroma:.45, grain:1, rings:8, speed:1, morph:"scroll", liquid:.7 }
+  defaults:{ tint:"onyx", shards:40, chroma:.15, grain:1, rings:8, speed:1, morph:"scroll", liquid:.7 }
 };
 
 /* ---------- settings ---------- */
-const STORE = "onyx-tune-v6";
+const STORE = "onyx-tune-v7";
 const load = () => { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch (e) { return {}; } };
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify(settings)); } catch (e) {} };
 let settings = Object.assign({}, CONFIG.defaults, load());
@@ -458,7 +455,7 @@ const sphere = new THREE.Mesh(new THREE.SphereGeometry(1, 160, 120), new THREE.S
       vV = -mv.xyz; vP = p;
       gl_Position = projectionMatrix*mv;
     }`,
-  fragmentShader: PAL + `uniform float uTime; varying vec3 vV; varying vec3 vP;
+  fragmentShader: PAL + `uniform float uTime; uniform vec3 uEdge; varying vec3 vV; varying vec3 vP;
     float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233)))*43758.5453); }
     float h3(vec3 p){ return fract(sin(dot(p, vec3(127.1,311.7,74.7)))*43758.5453); }
     void main(){
@@ -475,8 +472,8 @@ const sphere = new THREE.Mesh(new THREE.SphereGeometry(1, 160, 120), new THREE.S
       // colour drifts over the surface like weather on a planet
       float fl = vn(vP*2.2 + vec3(0., uTime*.12, uTime*.07))*.7 + vn(vP*5.5 - uTime*.1)*.3;
       vec3 hue = pal(fl*1.4 + uTime*.03);
-      vec3 rimC = mix(pal(rim + uTime*.03), vec3(1.), .55);
-      vec3 dotC = mix(hue, vec3(1.), smoothstep(.55, 1.1, lam + spec*.3)*.65);
+      vec3 rimC = mix(pal(rim + uTime*.03), uEdge, .55);
+      vec3 dotC = mix(hue, uEdge, smoothstep(.55, 1.1, lam + spec*.3)*.65);
       vec3 col = dotC*s*.95 + hue*light*.22 + rimC*rim*.45*s;
       gl_FragColor = vec4(col, 1.);
     }`
@@ -611,8 +608,8 @@ const post = new THREE.ShaderMaterial({
       float b2 = exp(-dot(p - c2, p - c2)/(.14 + .02*cos(t*1.8)));
       float haze = exp(-pow(p.x - .15*W, 2.)/(.14*W*W))*.55;               // a wide cool veil down the left edge
       col = mix(col, vec3(.82,.80,.78), haze);
-      col = mix(col, vec3(.55,.52,.53), b1*.55);                     // charcoal smoke
-      col = mix(col, vec3(.45,.41,.43), b2*.6);
+      col = mix(col, vec3(.58,.55,.56), b1*.42);                     // charcoal smoke
+      col = mix(col, vec3(.50,.46,.48), b2*.48);
       // grain: fine, flickering a little like film
       float g = h(floor(gl_FragCoord.xy) + floor(uTime*10.)*31.) - .5;
       return col + g*.11*uGrain;
