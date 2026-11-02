@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ORRERY · An agent that keeps every task in orbit</title>
+<link rel="icon" href="logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -27,7 +28,7 @@ main{position:relative;z-index:2}
 .nav{position:fixed;z-index:10;top:calc(env(safe-area-inset-top,0px) + 16px);left:var(--pad);right:var(--pad);display:flex;justify-content:space-between;align-items:center;gap:1rem}
 body::before{content:"";position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0px);z-index:11;background:var(--bg)}
 .brand{display:flex;align-items:center;gap:.6rem;color:var(--ink);text-decoration:none;font:500 .82rem/1 var(--mono);letter-spacing:.16em}
-.brand svg{width:20px;height:20px}
+.brand img{width:28px;height:28px;border-radius:50%;object-fit:cover;object-position:50% 48%;display:block;background:#000}
 .links{display:flex;gap:clamp(1rem,2.6vw,2.4rem);margin:0;padding:.7rem 1.2rem;list-style:none;border:1px solid var(--line);border-radius:999px;background:var(--chip);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .links a{color:var(--muted);text-decoration:none;font-size:.76rem}
 .links a:hover,.links a[aria-current="true"]{color:var(--ink)}
@@ -142,7 +143,7 @@ input[type=range]{width:100%;accent-color:var(--ink)}
 <canvas id="gl" aria-hidden="true"></canvas>
 
 <nav class="nav" aria-label="Main">
-  <a class="brand" href="#top"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4.2" fill="currentColor"/><ellipse cx="10" cy="10" rx="9" ry="3.6" fill="none" stroke="currentColor" stroke-width="1" transform="rotate(-25 10 10)"/></svg><span id="brandName"></span></a>
+  <a class="brand" href="#top"><img src="logo.jpg" alt="" width="28" height="28"><span id="brandName"></span></a>
   <ul class="links" id="links"></ul>
   <a class="launch" href="#access" id="launch"></a>
 </nav>
