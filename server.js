@@ -135,6 +135,30 @@ function minerFromAuth(req) {
 }
 const isAddress = (a) => typeof a === "string" && /^0x[0-9a-fA-F]{40}$/.test(a);
 
+// ---------- abuse limits ----------
+// Requests per IP per minute, by kind. Behind a reverse proxy set TRUST_PROXY=1 so the real client IP is used.
+const LIMITS = { auth: 20, mine: 1200, read: 240 };
+const hits = new Map(); // "kind|ip" -> { n, reset }
+setInterval(() => { const t = Date.now(); for (const [k, v] of hits) if (v.reset < t) hits.delete(k); }, 60_000);
+function clientIp(req) {
+  if (process.env.TRUST_PROXY) { const f = String(req.headers["x-forwarded-for"] || "").split(",")[0].trim(); if (f) return f; }
+  return req.socket.remoteAddress || "?";
+}
+function limited(req, kind) {
+  const key = kind + "|" + clientIp(req), t = Date.now();
+  let h = hits.get(key);
+  if (!h || h.reset < t) { h = { n: 0, reset: t + 60_000 }; hits.set(key, h); }
+  return ++h.n > LIMITS[kind];
+}
+
+// security headers for every page: no framing (protects the wallet sign-in), no sniffing, scripts only from here and cdnjs
+const PAGE_HEADERS = {
+  "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "DENY",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'",
+};
+
 // ---------- api ----------
 async function api(req, res, url) {
   const route = `${req.method} ${url.pathname}`;
@@ -231,13 +255,17 @@ async function api(req, res, url) {
 http.createServer(async (req, res) => {
   const url = new URL(req.url || "/", "http://x");
   try {
-    if (url.pathname.startsWith("/api/")) return await api(req, res, url);
+    if (url.pathname.startsWith("/api/")) {
+      const kind = url.pathname.startsWith("/api/auth/") ? "auth" : url.pathname.startsWith("/api/mine/") ? "mine" : "read";
+      if (limited(req, kind)) return send(res, 429, { error: "too many requests, slow down" });
+      return await api(req, res, url);
+    }
     const rel = decodeURIComponent(url.pathname === "/" ? "/index.html" : url.pathname);
     const file = path.join(PUBLIC, rel);
     if (!file.startsWith(PUBLIC + path.sep)) { res.writeHead(403); return res.end(); }
     fs.readFile(file, (err, buf) => {
-      if (err) { res.writeHead(404); return res.end("Not found"); }
-      res.writeHead(200, { "Content-Type": MIME[path.extname(file)] || "application/octet-stream" });
+      if (err) { res.writeHead(404, PAGE_HEADERS); return res.end("Not found"); }
+      res.writeHead(200, { ...PAGE_HEADERS, "Content-Type": MIME[path.extname(file)] || "application/octet-stream" });
       res.end(buf);
     });
   } catch (e) {

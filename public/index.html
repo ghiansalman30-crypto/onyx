@@ -184,6 +184,11 @@ button.launch{border:0;cursor:pointer;font-family:var(--sans)}
 .cmd code{font:400 .76rem var(--mono);word-break:break-all}
 .cmd button{appearance:none;border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:999px;padding:.35rem .8rem;font:500 .68rem var(--mono);cursor:pointer}
 .bal{margin:1rem 0 .4rem;font-size:.86rem}
+.note a{color:var(--ink)}
+.pick{display:inline-flex;flex-wrap:wrap;justify-content:center;gap:.5rem}
+.pick button{display:inline-flex;align-items:center;gap:.5rem;appearance:none;border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:999px;padding:.45rem .9rem .45rem .5rem;font:500 .74rem var(--sans);cursor:pointer}
+.pick button:hover{border-color:var(--ink)}
+.pick img{width:20px;height:20px;border-radius:6px}
 .fine{margin:0;font:400 .68rem/1.5 var(--mono);color:var(--muted)}
 
 footer{position:relative;z-index:2;display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem;padding:1.4rem var(--pad) calc(env(safe-area-inset-bottom,0px) + 1.4rem);border-top:1px solid var(--line);font:400 .68rem var(--mono);color:var(--faint)}
@@ -442,14 +447,22 @@ const short = a => a.slice(0, 6) + "…" + a.slice(-4);
 const ago = t => { if (!t) return "—"; const s = Math.max(0, Math.round((Date.now() - t)/1000)); return s < 60 ? s + "s ago" : s < 3600 ? Math.round(s/60) + "m ago" : Math.round(s/3600) + "h ago"; };
 const escH = t => String(t).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" })[c]);
 let net = null, skew = 0;
+// numbers glide to their new value instead of jumping (instant with reduced motion)
+function countTo(el, to, fmt){
+  const from = +el.dataset.v || 0; el.dataset.v = to;
+  if (reduceMotion || from === to || !el.dataset.seen) { el.dataset.seen = 1; el.textContent = fmt(to); return; }
+  const t0 = performance.now(), dur = 700;
+  const step = now => { const k = Math.min(1, (now - t0)/dur), e = 1 - Math.pow(1 - k, 3); el.textContent = fmt(from + (to - from)*e); if (k < 1 && +el.dataset.v === to) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
 async function refreshStats(){
   try {
     const r = await fetch("/api/stats", { cache: "no-store" });
     net = await r.json(); skew = net.serverTime - Date.now();
-    $("n-miners").textContent = fmtN(net.activeMiners);
-    $("n-rate").textContent = fmtRate(net.hashrate);
+    countTo($("n-miners"), net.activeMiners, v => fmtN(v));
+    countTo($("n-rate"), net.hashrate, fmtRate);
     $("n-round").textContent = "#" + net.round;
-    $("n-circ").textContent = fmtN(net.circulating);
+    countTo($("n-circ"), net.circulating, v => fmtN(v));
     $("n-emit").textContent = fmtN(net.emissionPerRound, 1) + " / round · max " + fmtN(net.maxSupply);
     $("hs0").textContent = "Network online · " + net.activeMiners + (net.activeMiners === 1 ? " miner" : " miners");
     $("hs1").textContent = fmtRate(net.hashrate);
@@ -499,16 +512,41 @@ $("signout").addEventListener("click", () => {
   myKey = myAddr = null; $("keybox").hidden = true; $("connect").textContent = CONFIG.launch; $("note").textContent = "Signed out on this browser. Your balance stays with your wallet.";
   refreshStats();
 });
-async function connect(){
+// wallets announce themselves (EIP-6963), so people with several extensions can pick one
+const wallets = new Map();
+addEventListener("eip6963:announceProvider", e => { const d = e.detail; if (d && d.info && d.provider) wallets.set(d.info.uuid, d); });
+dispatchEvent(new Event("eip6963:requestProvider"));
+const isPhone = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+function connect(){
   const note = $("note");
-  if (!window.ethereum) { note.textContent = "No wallet found. Install MetaMask, OKX Wallet or Rabby, then try again."; return; }
+  const list = [...wallets.values()];
+  if (list.length > 1) {
+    // let the visitor choose which wallet signs
+    note.innerHTML = `<span class="pick">${list.map((w, i) => `<button type="button" data-w="${i}"><img src="${escH(w.info.icon)}" alt="">${escH(w.info.name)}</button>`).join("")}</span>`;
+    note.querySelectorAll("[data-w]").forEach(b => b.addEventListener("click", () => signIn(list[+b.dataset.w].provider)));
+    return;
+  }
+  const provider = list[0] ? list[0].provider : window.ethereum;
+  if (provider) return signIn(provider);
+  if (isPhone) {
+    // phone browsers have no wallet: reopen this page inside a wallet app's browser
+    const here = location.host + location.pathname;
+    note.innerHTML = `Open this page in your wallet app: <a href="https://metamask.app.link/dapp/${escH(here)}">MetaMask</a> · <a href="okx://wallet/dapp/url?dappUrl=${encodeURIComponent(location.href)}">OKX Wallet</a>`;
+    return;
+  }
+  note.textContent = "No wallet found. Install MetaMask, OKX Wallet or Rabby, then try again.";
+}
+
+async function signIn(provider){
+  const note = $("note");
   try {
     note.textContent = "Waiting for your wallet…";
-    const [address] = await window.ethereum.request({ method: "eth_requestAccounts" });
+    const [address] = await provider.request({ method: "eth_requestAccounts" });
     const { message } = await (await fetch("/api/auth/nonce?address=" + address)).json();
     note.textContent = "Sign the message in your wallet. It is free and moves no funds.";
     const hex = "0x" + [...new TextEncoder().encode(message)].map(b => b.toString(16).padStart(2, "0")).join("");
-    const signature = await window.ethereum.request({ method: "personal_sign", params: [hex, address] });
+    const signature = await provider.request({ method: "personal_sign", params: [hex, address] });
     const r = await fetch("/api/auth/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ address, signature }) });
     const j = await r.json();
     if (!r.ok) throw new Error(j.error || "sign-in failed");
@@ -524,7 +562,7 @@ async function refreshMe(){
       try { localStorage.removeItem(MINER); } catch (e) {}
       myKey = myAddr = null; $("keybox").hidden = true; $("connect").textContent = CONFIG.launch; $("note").textContent = "Your key was replaced. Connect again to get a new one."; return;
     }
-    const me = await r.json(); $("k-earned").textContent = fmtN(me.earned, 4); $("k-shares").textContent = fmtN(me.shares);
+    const me = await r.json(); countTo($("k-earned"), me.earned, v => fmtN(v, 4)); $("k-shares").textContent = fmtN(me.shares);
   } catch (e) {}
 }
 setInterval(refreshMe, 15000);
@@ -680,6 +718,7 @@ const shardMat = new THREE.ShaderMaterial({
 });
 function rng(seed){ return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed>>>15, 1|seed); t = t + Math.imul(t ^ t>>>7, 61|t) ^ t; return ((t ^ t>>>14)>>>0)/4294967296; }; }
 function buildShards(n){
+  if (mobile) n = Math.min(n, 24); // fewer strips on phones keeps them cool and smooth
   tumble.remove(shardGroup); shardGroup.traverse(o => o.geometry && o.geometry.dispose());
   shardGroup = new THREE.Group(); tumble.add(shardGroup);
   const R = rng(19), SEG = 70;
@@ -791,7 +830,7 @@ postScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2), post));
 /* ---------- layout ---------- */
 let mobile = false;
 function resize(){
-  const w = innerWidth, h = innerHeight, dpr = Math.min(devicePixelRatio, 1.75);
+  const w = innerWidth, h = innerHeight, dpr = Math.min(devicePixelRatio, w/h < .8 ? 1.25 : 1.75);
   renderer.setPixelRatio(dpr); renderer.setSize(w, h, false);
   rt.setSize(Math.round(w*dpr), Math.round(h*dpr));
   post.uniforms.uRes.value.set(w*dpr, h*dpr);
