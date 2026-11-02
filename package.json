@@ -1,8 +1,8 @@
 {
-  "name": "orrery",
+  "name": "onyx",
   "private": true,
   "version": "0.1.0",
-  "description": "ORRERY: mine from your terminal with SHA-256 proof-of-work",
+  "description": "ONYX: mine from your terminal with SHA-256 proof-of-work",
   "scripts": {
     "start": "node server.js"
   },

@@ -1,10 +1,10 @@
-// ORRERY mining server: serves the website and runs the proof-of-work engine.
+// ONYX mining server: serves the website and runs the proof-of-work engine.
 //
 //   node server.js            -> http://127.0.0.1:4000
 //
 // How mining works
 //   1. A wallet signs a login message on the website and gets a personal API key.
-//   2. The CLI (`orrery mine`) asks for challenges with that key, searches for a nonce so that
+//   2. The CLI (`onyx mine`) asks for challenges with that key, searches for a nonce so that
 //      sha256(seed + ":" + nonce) starts with enough zero bits, and submits it as a "share".
 //   3. Difficulty is tuned per miner so each miner finds about one share every 20 s; a share
 //      is worth 2^bits units of work.
@@ -38,7 +38,7 @@ const ACTIVE_WINDOW_MS = 10 * 60_000;
 
 // ---------- storage ----------
 fs.mkdirSync(DATA, { recursive: true });
-const db = new DatabaseSync(path.join(DATA, "orrery.db"));
+const db = new DatabaseSync(path.join(DATA, "onyx.db"));
 db.exec(`
   PRAGMA journal_mode = WAL;
   CREATE TABLE IF NOT EXISTS meta (k TEXT PRIMARY KEY, v TEXT);
@@ -60,7 +60,7 @@ const GENESIS = Number(getMeta("genesis"));
 const roundOf = (t) => Math.floor(t / ROUND_MS);
 const emissionAt = (t) => BASE_EMISSION / 2 ** Math.floor(Math.max(0, t - GENESIS) / HALVING_MS);
 const sha = (s) => crypto.createHash("sha256").update(s).digest();
-const hashKey = (k) => sha("orrery-key:" + k).toString("hex");
+const hashKey = (k) => sha("onyx-key:" + k).toString("hex");
 
 function leadingZeroBits(buf) {
   let n = 0;
@@ -99,7 +99,7 @@ setInterval(settle, 2_000);
 // ---------- wallet login ----------
 const logins = new Map(); // address -> { nonce, expires }
 function loginMessage(address, nonce) {
-  return `Sign in to ORRERY\n\nThis signature only proves you own this wallet. It costs nothing and moves no funds.\n\nWallet: ${address}\nNonce: ${nonce}`;
+  return `Sign in to ONYX\n\nThis signature only proves you own this wallet. It costs nothing and moves no funds.\n\nWallet: ${address}\nNonce: ${nonce}`;
 }
 
 // ---------- challenges ----------
@@ -176,7 +176,7 @@ async function api(req, res, url) {
     const ok = await verifyMessage({ address, message: loginMessage(address, pending.nonce), signature }).catch(() => false);
     if (!ok) return send(res, 401, { error: "signature does not match this wallet" });
     // a fresh key on every sign-in; the old one stops working (only its hash is stored)
-    const apiKey = "orr_" + crypto.randomBytes(20).toString("hex");
+    const apiKey = "onyx_" + crypto.randomBytes(20).toString("hex");
     const addr = address.toLowerCase();
     db.prepare(`INSERT INTO miners (address, api_key_hash, created, bits, shares, earned) VALUES (?, ?, ?, ?, 0, 0)
       ON CONFLICT(address) DO UPDATE SET api_key_hash = excluded.api_key_hash`).run(addr, hashKey(apiKey), Date.now(), START_BITS);
@@ -242,4 +242,4 @@ http.createServer(async (req, res) => {
   } catch (e) {
     send(res, 400, { error: e.message || "bad request" });
   }
-}).listen(PORT, HOST, () => console.log(`ORRERY: http://${HOST}:${PORT}  (emission ${BASE_EMISSION.toFixed(1)} per round)`));
+}).listen(PORT, HOST, () => console.log(`ONYX: http://${HOST}:${PORT}  (emission ${BASE_EMISSION.toFixed(1)} per round)`));

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>ORRERY · Mine from your terminal</title>
+<title>ONYX · Mine from your terminal</title>
 <link rel="icon" href="logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -206,7 +206,7 @@ input[type=range]{width:100%;accent-color:var(--ink)}
    Add or reorder sections; poses blend while you scroll.
    ========================================================= */
 const CONFIG = {
-  brand: "ORRERY",
+  brand: "ONYX",
   coreSize: .68,          // overall size of the sphere and everything orbiting it (1 = original)
   launch: "Connect wallet",
   links: [["How it works","#how"],["Economy","#economy"],["Network","#network"],["Mine","#access"]],
@@ -214,31 +214,31 @@ const CONFIG = {
     { id:"top", kind:"hero", pose:{ pos:[1.2, .22], scale:1, turb:.5, shape:"sphere", veil:1 },
       label:"SHA-256 · Proof-of-work",
       title:"Mine it<br>from orbit",
-      body:"ORRERY is a coin you mine from your terminal. Connect a wallet, take your API key, and let your CPU hash. Every minute a fixed amount is split between that round's miners.",
+      body:"ONYX is a coin you mine from your terminal. Connect a wallet, take your API key, and let your CPU hash. Every minute a fixed amount is split between that round's miners.",
       status:["network —","hashrate —","round ends —"] },
     { id:"economy", kind:"caps", side:"left", pose:{ pos:[1.55, 0], scale:.86, turb:.8, shape:"cube", veil:.35 },
       label:"Economy", title:"Fixed supply,<br>fair rounds",
-      items:[["One round a minute","Each round releases the same amount of ORRERY, split between its miners by the work they proved."],
-             ["Halving every 30 days","Emission halves on a schedule, so the total supply is capped at 50,000,000 ORRERY."],
+      items:[["One round a minute","Each round releases the same amount of ONYX, split between its miners by the work they proved."],
+             ["Halving every 30 days","Emission halves on a schedule, so the total supply is capped at 50,000,000 ONYX."],
              ["Any CPU","Difficulty tunes itself per miner to about one share every 20 seconds. More machines only compete for the same emission."]] },
     { id:"how", kind:"steps", side:"right", pose:{ pos:[-1.75, .5], scale:.82, turb:.35, shape:"torus", veil:.3 },
       label:"How it works", title:"Connect, install,<br>mine",
       steps:[["Connect","Sign in with your wallet. No password, no fee: the signature only proves the wallet is yours."],
              ["Install","Install the CLI with npm. It needs Node.js 18 or newer."],
-             ["Log in","Paste your API key once: orrery login &lt;API_KEY&gt;."],
-             ["Mine","Run orrery mine. Every round, your share of the emission lands in your balance."]] },
+             ["Log in","Paste your API key once: onyx login &lt;API_KEY&gt;."],
+             ["Mine","Run onyx mine. Every round, your share of the emission lands in your balance."]] },
     { id:"demo", kind:"demo", side:"left", pose:{ pos:[1.7, -.1], scale:.78, turb:1.2, shape:"star", veil:.4 },
       label:"Sample session", title:"Your CPU,<br>in orbit",
       log:[
-        ['c','$ orrery mine'],
+        ['c','$ onyx mine'],
         ['t','Mining as 0x8f3a…e91d on 7 threads'],
         ['','  ◐ 2.41 MH/s   share accepted   bits 25'],
         ['','  ◓ 2.39 MH/s   share accepted   bits 25'],
         ['g','✓ round 29893812 closed · 6 miners'],
-        ['g','✓ paid 96.45 ORRERY for 3 shares'],
+        ['g','✓ paid 96.45 ONYX for 3 shares'],
         ['','  ◑ 2.44 MH/s   share accepted   bits 26'],
         ['t','  round ends in 41 s'],
-        ['g','✓ earned 1,204.88 ORRERY today']
+        ['g','✓ earned 1,204.88 ONYX today']
       ] },
     { id:"network", kind:"network", side:"left", pose:{ pos:[1.75, .62], scale:.5, turb:.9, shape:"disc", veil:.3 },
       label:"Network · live", title:"Every round,<br>on the record" },
@@ -246,7 +246,7 @@ const CONFIG = {
       label:"Start mining", title:"Put your CPU<br>to work",
       body:"Free, no password, just a wallet. Sign once to get your API key, then mine from any terminal." }
   ],
-  footer:{ left:"© ORRERY LABS", links:[["Docs","#"],["X","#"],["GitHub","#"]] },
+  footer:{ left:"© ONYX LABS", links:[["Docs","#"],["X","#"],["GitHub","#"]] },
   // each tint: c1/c2/c3 flow across the core, edge colours the torn rims, ring colours the orbits
   tints:{
     graphite:{ label:"Graphite", c1:"#8c8c8c", c2:"#d9d9d9", c3:"#5a5a5a", edge:"#f0f0f0", ring:"#8a8a8a" },
@@ -259,7 +259,7 @@ const CONFIG = {
 };
 
 /* ---------- settings ---------- */
-const STORE = "orrery-tune-v5";
+const STORE = "onyx-tune-v5";
 const load = () => { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch (e) { return {}; } };
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify(settings)); } catch (e) {} };
 let settings = Object.assign({}, CONFIG.defaults, load());
@@ -281,7 +281,7 @@ $("main").innerHTML = CONFIG.sections.map(s => {
       <div class="scroll rv" style="--d:5">SCROLL<i></i></div>`;
   if (s.kind === "caps") inner = `<div class="half">${head(s)}<ul class="caps">${s.items.map(([h,p],i) => `<li class="rv" style="--d:${i+2}"><b>0${i+1}</b><div><h3>${h}</h3><p>${p}</p></div></li>`).join("")}</ul></div>`;
   if (s.kind === "steps") inner = `<div class="half">${head(s)}</div><div class="steps">${s.steps.map(([h,p],i) => `<div class="step rv" style="--d:${i+2}"><b>0${i+1} /</b><h3>${h}</h3><p>${p}</p></div>`).join("")}</div>`;
-  if (s.kind === "demo") inner = `<div class="half">${head(s)}</div><div class="term rv" style="--d:2"><header><i></i><i></i><i></i><span>orrery mine · simulated</span></header><pre id="log" aria-live="polite"></pre></div>`;
+  if (s.kind === "demo") inner = `<div class="half">${head(s)}</div><div class="term rv" style="--d:2"><header><i></i><i></i><i></i><span>onyx mine · simulated</span></header><pre id="log" aria-live="polite"></pre></div>`;
   if (s.kind === "network") inner = `<div class="half">${head(s)}</div>
       <div class="stats rv" style="--d:2">
         <div><b>Active miners</b><strong id="n-miners">—</strong><small>last 10 minutes</small></div>
@@ -301,8 +301,8 @@ $("main").innerHTML = CONFIG.sections.map(s => {
         <div class="cmd"><span>API key</span><code id="k-key"></code><button type="button" data-copy="k-key">Copy</button></div>
         <div class="cmd"><span>1 · Install</span><code id="k-install"></code><button type="button" data-copy="k-install">Copy</button></div>
         <div class="cmd"><span>2 · Log in</span><code id="k-login"></code><button type="button" data-copy="k-login">Copy</button></div>
-        <div class="cmd"><span>3 · Mine</span><code>orrery mine</code><button type="button" data-copy-text="orrery mine">Copy</button></div>
-        <p class="bal">Earned <strong id="k-earned">0</strong> ORRERY · <span id="k-shares">0</span> shares</p>
+        <div class="cmd"><span>3 · Mine</span><code>onyx mine</code><button type="button" data-copy-text="onyx mine">Copy</button></div>
+        <p class="bal">Earned <strong id="k-earned">0</strong> ONYX · <span id="k-shares">0</span> shares</p>
         <p class="fine">This key is shown once. Keep it private: anyone with it can mine into your balance. Signing in again makes a new key and turns the old one off.</p>
       </div>
       <p class="note" id="note" aria-live="polite"></p>`;
@@ -359,8 +359,8 @@ async function connect(){
     if (!r.ok) throw new Error(j.error || "sign-in failed");
     myKey = j.apiKey;
     $("k-addr").textContent = j.address; $("k-key").textContent = j.apiKey;
-    $("k-install").textContent = "npm install -g " + location.origin + "/orrery-cli.tgz";
-    $("k-login").textContent = "orrery login " + j.apiKey + (location.origin === "http://127.0.0.1:4000" ? "" : " --server " + location.origin);
+    $("k-install").textContent = "npm install -g " + location.origin + "/onyx-cli.tgz";
+    $("k-login").textContent = "onyx login " + j.apiKey + (location.origin === "http://127.0.0.1:4000" ? "" : " --server " + location.origin);
     $("keybox").hidden = false; $("connect").textContent = "Sign in again (new key)";
     note.textContent = ""; refreshMe();
   } catch (e) { note.textContent = e.code === 4001 ? "Cancelled in the wallet." : "Could not sign in: " + e.message; }

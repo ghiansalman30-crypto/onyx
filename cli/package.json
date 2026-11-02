@@ -1,8 +1,8 @@
 {
-  "name": "orrery-cli",
+  "name": "onyx-cli",
   "version": "0.1.0",
-  "description": "Mine ORRERY from your terminal with SHA-256 proof-of-work",
-  "bin": { "orrery": "bin/orrery.js" },
+  "description": "Mine ONYX from your terminal with SHA-256 proof-of-work",
+  "bin": { "onyx": "bin/onyx.js" },
   "engines": { "node": ">=18" },
   "license": "MIT"
 }
