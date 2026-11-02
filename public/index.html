@@ -54,6 +54,15 @@ body::before{content:"";position:fixed;top:0;left:0;right:0;height:env(safe-area
 .nav-r{display:flex;align-items:center;gap:.5rem}
 .menu-btn{display:none;appearance:none;border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:999px;padding:.6rem 1rem;font:500 .72rem/1 var(--mono);letter-spacing:.08em;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .num{color:var(--ink)}
+.lang{position:relative}
+.lang-btn{appearance:none;border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:999px;padding:.6rem .85rem;font:500 .72rem/1 var(--mono);letter-spacing:.08em;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.lang-btn::after{content:"";display:inline-block;width:5px;height:5px;margin-left:.45rem;border-right:1px solid currentColor;border-bottom:1px solid currentColor;transform:translateY(-2px) rotate(45deg)}
+.lang-list{position:absolute;right:0;top:calc(100% + 8px);margin:0;padding:.35rem;list-style:none;min-width:12rem;border:1px solid var(--line);border-radius:14px;background:color-mix(in srgb,var(--ivory) 94%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 12px 30px rgba(42,37,41,.12)}
+.lang-list[hidden]{display:none}
+.lang-list button{display:flex;align-items:center;gap:.7rem;width:100%;white-space:nowrap;appearance:none;border:0;background:none;color:var(--ink);text-align:left;padding:.6rem .7rem;border-radius:10px;font:400 .82rem var(--sans);cursor:pointer}
+.lang-list button b{font:500 .64rem var(--mono);letter-spacing:.1em;color:var(--muted);width:1.6rem}
+.lang-list button:hover,.lang-list button[aria-checked="true"]{background:color-mix(in srgb,var(--ink) 7%,transparent)}
+.lang-list button[aria-checked="true"]::after{content:"✓";margin-left:auto;font-size:.8rem}
 
 /* quick start in the hero */
 .quick{display:grid;gap:.5rem;margin-top:1.6rem;width:min(34rem,100%)}
@@ -242,6 +251,7 @@ input[type=range]{width:100%;accent-color:var(--ink)}
   .cmd{grid-template-columns:1fr auto}
   .cmd span{grid-column:1 / -1}
 }
+@media (max-width:480px){ .nav .launch{display:none} } /* small phones: the hero keeps the main button */
 @media (prefers-reduced-motion:reduce){
   .rv{transition:opacity .3s;transform:none}
   .dot,.caret,.k-hero .scroll i::after{animation:none}
@@ -252,17 +262,17 @@ input[type=range]{width:100%;accent-color:var(--ink)}
 <canvas id="gl" aria-hidden="true"></canvas>
 
 <div class="bar" role="status" aria-live="off">
-  <span><i class="dot"></i><b id="hs0">connecting…</b></span>
-  <span>hashrate <b id="hs1">—</b></span>
-  <span class="hide-m">round <b id="hs4">—</b></span>
+  <span><i class="dot"></i><b id="hs0" data-i18n="bar.connecting">connecting…</b></span>
+  <span><span data-i18n="bar.hashrate">hashrate</span> <b id="hs1">—</b></span>
+  <span class="hide-m"><span data-i18n="bar.round">round</span> <b id="hs4">—</b></span>
   <span><b id="hs2">—</b></span>
-  <span class="hide-m">emission <b id="hs3">—</b></span>
+  <span class="hide-m"><span data-i18n="bar.emission">emission</span> <b id="hs3">—</b></span>
   <span class="rev hide-m">ONYX/CLI rev 1.0</span>
 </div>
 <nav class="nav" aria-label="Main" id="nav">
   <a class="brand" href="#top"><i class="logo" aria-hidden="true"></i><span id="brandName"></span></a>
   <ul class="links" id="links"></ul>
-  <div class="nav-r"><button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="links">MENU</button><a class="launch" href="#access" id="launch"></a></div>
+  <div class="nav-r"><div class="lang" id="lang"><button class="lang-btn" id="langBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="langList" aria-label="Language">EN</button><ul class="lang-list" id="langList" role="menu" hidden></ul></div><button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="links">MENU</button><a class="launch" href="#access" id="launch"></a></div>
 </nav>
 
 <main id="main"></main>
@@ -270,16 +280,16 @@ input[type=range]{width:100%;accent-color:var(--ink)}
 
 <button class="tune-btn" id="tuneBtn" aria-expanded="false" aria-controls="tune">TUNE</button>
 <form class="tune" id="tune" hidden onsubmit="return false">
-  <h2>Tune the core</h2>
-  <fieldset class="row"><legend>Tint</legend><div class="sw" id="swatches"></div></fieldset>
-  <div class="row"><label class="lbl" for="shards">Shards <output id="shardsOut"></output></label><input type="range" id="shards" min="0" max="64" step="1"></div>
-  <div class="row"><label class="lbl" for="chroma">Chromatic split <output id="chromaOut"></output></label><input type="range" id="chroma" min="0" max="2" step="0.1"></div>
-  <div class="row"><label class="lbl" for="grain">Grain <output id="grainOut"></output></label><input type="range" id="grain" min="0" max="2" step="0.1"></div>
-  <div class="row"><label class="lbl" for="rings">Orbit rings <output id="ringsOut"></output></label><input type="range" id="rings" min="0" max="12" step="1"></div>
-  <div class="row"><label class="lbl" for="speed">Motion <output id="speedOut"></output></label><input type="range" id="speed" min="0" max="2" step="0.1"></div>
-  <fieldset class="row"><legend>Morph</legend><div class="seg"><input type="radio" name="morph" id="mo-scroll" value="scroll"><label for="mo-scroll">With scroll</label><input type="radio" name="morph" id="mo-auto" value="auto"><label for="mo-auto">Auto cycle</label></div></fieldset>
-  <div class="row"><label class="lbl" for="liquid">Liquid surface <output id="liquidOut"></output></label><input type="range" id="liquid" min="0" max="2.5" step="0.1"></div>
-  <button type="button" class="reset" id="reset">Reset to defaults</button>
+  <h2 data-i18n="tune.title">Tune the core</h2>
+  <fieldset class="row"><legend data-i18n="tune.tint">Tint</legend><div class="sw" id="swatches"></div></fieldset>
+  <div class="row"><label class="lbl" for="shards"><span data-i18n="tune.shards">Shards</span> <output id="shardsOut"></output></label><input type="range" id="shards" min="0" max="64" step="1"></div>
+  <div class="row"><label class="lbl" for="chroma"><span data-i18n="tune.chroma">Chromatic split</span> <output id="chromaOut"></output></label><input type="range" id="chroma" min="0" max="2" step="0.1"></div>
+  <div class="row"><label class="lbl" for="grain"><span data-i18n="tune.grain">Grain</span> <output id="grainOut"></output></label><input type="range" id="grain" min="0" max="2" step="0.1"></div>
+  <div class="row"><label class="lbl" for="rings"><span data-i18n="tune.rings">Orbit rings</span> <output id="ringsOut"></output></label><input type="range" id="rings" min="0" max="12" step="1"></div>
+  <div class="row"><label class="lbl" for="speed"><span data-i18n="tune.speed">Motion</span> <output id="speedOut"></output></label><input type="range" id="speed" min="0" max="2" step="0.1"></div>
+  <fieldset class="row"><legend data-i18n="tune.morph">Morph</legend><div class="seg"><input type="radio" name="morph" id="mo-scroll" value="scroll"><label for="mo-scroll" data-i18n="tune.withScroll">With scroll</label><input type="radio" name="morph" id="mo-auto" value="auto"><label for="mo-auto" data-i18n="tune.auto">Auto cycle</label></div></fieldset>
+  <div class="row"><label class="lbl" for="liquid"><span data-i18n="tune.liquid">Liquid surface</span> <output id="liquidOut"></output></label><input type="range" id="liquid" min="0" max="2.5" step="0.1"></div>
+  <button type="button" class="reset" id="reset" data-i18n="tune.reset">Reset to defaults</button>
 </form>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -365,76 +375,173 @@ const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const $ = id => document.getElementById(id);
 const clamp01 = v => Math.min(1, Math.max(0, v)), smooth = t => t*t*(3-2*t), lerp = (a,b,t) => a + (b-a)*t;
 
+/* ---------- language ----------
+   The page always opens in English. Picking a language swaps every element tagged
+   data-i18n="key"; English text is read from the page itself, other languages live in LANGS.
+   To add a language: copy the "id" block, translate the values, and add it to LANG_NAMES. */
+const LANG_NAMES = { en: "English", id: "Bahasa Indonesia" };
+const LANGS = { id: {
+  "doc.title": "ONYX · Mining dari terminal",
+  "launch": "Hubungkan wallet",
+  "link.0": "Cara kerja", "link.1": "Ekonomi", "link.2": "Jaringan", "link.3": "FAQ", "link.4": "Mining",
+  "bar.hashrate": "hashrate", "bar.round": "ronde", "bar.emission": "emisi", "bar.connecting": "menghubungkan…",
+  "s.top.title": "Mining<br>dari orbit",
+  "s.top.body": "ONYX adalah koin yang kamu mining dari terminal. Hubungkan wallet, ambil API key, lalu biarkan CPU kamu bekerja. Setiap menit, jumlah yang tetap dibagi ke para miner di ronde itu.",
+  "ui.howBtn": "Lihat cara kerjanya", "ui.copy": "Salin", "ui.soon": "Segera hadir", "ui.scroll": "GULIR",
+  "s.economy.label": "Ekonomi", "s.economy.title": "Supply tetap,<br>ronde yang adil",
+  "s.economy.body": "Setiap ronde merilis jumlah ONYX yang sama. Mesin tambahan hanya ikut berebut jatah itu, tidak bisa mencetak lebih banyak.",
+  "s.economy.rows.0.k": "Algoritma", "s.economy.rows.1.k": "Ronde", "s.economy.rows.1.v": "60 detik",
+  "s.economy.rows.2.k": "Emisi", "s.economy.rows.2.v": "<span id=\"sp-emit\">578.7</span> ONYX / ronde",
+  "s.economy.rows.3.k": "Supply maksimal", "s.economy.rows.4.v": "setiap 30 hari",
+  "s.economy.rows.5.k": "Kesulitan", "s.economy.rows.5.v": "otomatis, sekitar 1 share / 20 dtk per miner",
+  "s.economy.rows.6.k": "Pembayaran", "s.economy.rows.6.v": "dibagi sesuai kerja di akhir setiap ronde",
+  "s.economy.rows.7.k": "Perangkat", "s.economy.rows.7.v": "CPU apa saja · Node.js 18+",
+  "ui.specs": "Spesifikasi", "ui.supply": "Jadwal supply", "ui.fig": "Gbr. 01", "ui.launchTick": "rilis",
+  "s.how.label": "Cara kerja", "s.how.title": "Hubungkan, install,<br>mining",
+  "s.how.steps.0.h": "Hubungkan", "s.how.steps.0.p": "Masuk dengan wallet kamu. Tanpa password, tanpa biaya: tanda tangan hanya membuktikan wallet itu milikmu.",
+  "s.how.steps.1.p": "Install CLI lewat npm. Butuh Node.js 18 atau lebih baru.",
+  "s.how.steps.2.h": "Login", "s.how.steps.2.p": "Tempel API key sekali saja: onyx login &lt;API_KEY&gt;.",
+  "s.how.steps.3.h": "Mining", "s.how.steps.3.p": "Jalankan onyx mine. Setiap ronde, bagian emisimu masuk ke saldo.",
+  "s.demo.label": "Contoh sesi", "s.demo.title": "CPU kamu,<br>di orbit", "ui.simulated": "onyx mine · simulasi",
+  "s.network.label": "Jaringan · live", "s.network.title": "Setiap ronde,<br>tercatat",
+  "ui.activeMiners": "Miner aktif", "ui.last10": "10 menit terakhir", "ui.estimated": "perkiraan dari share",
+  "ui.currentRound": "Ronde sekarang", "ui.circulation": "Beredar", "ui.histCap": "Share per ronde · 60 menit terakhir",
+  "ui.latestRounds": "Ronde terakhir", "ui.th.round": "Ronde", "ui.th.ended": "Selesai", "ui.th.miners": "Miner",
+  "ui.th.shares": "Share", "ui.th.paid": "Dibayar", "ui.leaderboard": "Papan peringkat", "ui.th.earned": "Didapat",
+  "ui.th.last": "Terakhir aktif", "ui.loading": "Memuat…",
+  "s.faq.label": "Pertanyaan", "s.faq.title": "Sebelum kamu<br>mulai mining",
+  "s.faq.items.0.q": "Apakah miner-nya aman dijalankan?",
+  "s.faq.items.0.a": "Ya. CLI hanya menghitung hash SHA-256 dan berkomunikasi dengan server ONYX memakai API key kamu. CLI tidak pernah meminta private key atau seed phrase wallet, dan tidak bisa memindahkan dana.",
+  "s.faq.items.1.q": "Apakah login perlu bayar gas?",
+  "s.faq.items.1.a": "Tidak. Login hanya tanda tangan pesan biasa untuk membuktikan wallet itu milikmu. Tidak ada transaksi yang dikirim dan tidak ada biaya.",
+  "s.faq.items.2.q": "Kapan ONYX saya bisa ditarik?",
+  "s.faq.items.2.a": "Saldo kamu dicatat setiap ronde sejak share pertama. Penarikan on-chain dibuka saat token ONYX diluncurkan; contract address akan muncul di halaman ini.",
+  "s.faq.items.3.q": "CPU saya jadi sibuk. Bisa dibatasi?",
+  "s.faq.items.3.a": "Bisa. Jalankan onyx mine --threads 2 (atau angka lain) supaya sisa core tetap bebas. Hentikan kapan saja dengan Ctrl+C.",
+  "s.faq.items.4.q": "Bisakah bot atau farm besar mengambil semuanya?",
+  "s.faq.items.4.a": "Tidak ada yang bisa mencetak ONYX melebihi emisi per ronde. Mesin tambahan hanya membagi jumlah tetap yang sama, dan kesulitan diatur per miner.",
+  "s.faq.items.5.q": "API key saya hilang.",
+  "s.faq.items.5.a": "Hubungkan wallet yang sama lagi untuk mendapat key baru. Key lama berhenti berfungsi, saldo tetap tersimpan di wallet kamu.",
+  "s.access.label": "Mulai mining", "s.access.title": "Biarkan CPU kamu<br>bekerja",
+  "s.access.body": "Gratis, tanpa password, cukup wallet. Tanda tangan sekali untuk mendapat API key, lalu mining dari terminal mana pun.",
+  "ui.yourMiner": "Miner kamu", "ui.step2": "2 · Login", "ui.step3": "3 · Mining", "ui.earned": "Didapat", "ui.sharesWord": "share",
+  "ui.keyFine": "Jaga kerahasiaan key ini: siapa pun yang memegangnya bisa mining ke saldo kamu. Login lagi membuat key baru dan mematikan key lama. Browser ini mengingatnya sampai kamu keluar.",
+  "ui.signout": "Keluar di browser ini", "ui.footDl": "Unduh CLI",
+  "tune.title": "Atur inti", "tune.tint": "Warna", "tune.shards": "Serpihan", "tune.chroma": "Pecahan warna", "tune.grain": "Grain",
+  "tune.rings": "Cincin orbit", "tune.speed": "Gerak", "tune.morph": "Bentuk", "tune.withScroll": "Ikut scroll", "tune.auto": "Otomatis",
+  "tune.liquid": "Permukaan cair", "tune.reset": "Kembalikan default",
+  // text written by script
+  "js.online": "Jaringan online · {n} miner", "js.offline": "jaringan offline", "js.roundEnds": "ronde selesai {s}dtk",
+  "js.endsIn": "selesai dalam {s}dtk", "js.perRound": "/ ronde", "js.max": "maks", "js.noRounds": "Belum ada ronde yang ditambang",
+  "js.first": "Jadilah miner pertama", "js.secAgo": "{n}dtk lalu", "js.minAgo": "{n}mnt lalu", "js.hAgo": "{n}jam lalu", "js.you": "kamu",
+  "js.shares": "{n} share", "js.signAgain": "Masuk lagi (key baru)", "js.copied": "Tersalin", "js.menu": "MENU", "js.close": "TUTUP",
+  "js.noWallet": "Wallet tidak ditemukan. Install MetaMask, OKX Wallet, atau Rabby, lalu coba lagi.",
+  "js.openIn": "Buka halaman ini di aplikasi wallet:", "js.waiting": "Menunggu wallet kamu…",
+  "js.signMsg": "Tanda tangani pesan di wallet kamu. Gratis dan tidak memindahkan dana.",
+  "js.cancelled": "Dibatalkan di wallet.", "js.failed": "Gagal masuk: ", "js.signedOut": "Sudah keluar di browser ini. Saldo kamu tetap tersimpan di wallet.",
+  "js.replaced": "Key kamu sudah diganti. Hubungkan lagi untuk mendapat key baru."
+} };
+let lang = "en";
+const EN = {}; // filled from the page the first time a language is applied
+// dynamic text: English is passed in, other languages come from LANGS; {n}/{s} placeholders are filled from vars
+const t = (key, en, vars) => { let s = (lang !== "en" && LANGS[lang] && LANGS[lang][key]) || en; if (vars) for (const k in vars) s = s.replace("{" + k + "}", vars[k]); return s; };
+// static text: wrapped so it can be swapped later
+const tx = (key, en) => `<span data-i18n="${key}">${en}</span>`;
+
 /* ---------- page from CONFIG ---------- */
 $("brandName").textContent = CONFIG.brand;
-$("launch").textContent = CONFIG.launch;
-$("links").innerHTML = CONFIG.links.map(([t,h]) => `<li><a href="${h}">${t}</a></li>`).join("");
+$("launch").innerHTML = tx("launch", CONFIG.launch);
+$("links").innerHTML = CONFIG.links.map(([l,h], i) => `<li><a href="${h}">${tx("link." + i, l)}</a></li>`).join("");
 // Fig. 01: total supply over time, stepping down at each 30-day halving (supply after n periods = max * (1 - 2^-n))
 function supplyChart(){
   const W = 520, H = 150, L = 34, B = 22, months = 8, pts = [];
   for (let d = 0; d <= months*30; d += 2) { const n = d/30; pts.push([L + d/(months*30)*(W-L-8), 8 + (H-B-8)*(1 - (1 - Math.pow(2, -n)))]); }
   const line = pts.map((p,i) => (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" ");
-  const ticks = Array.from({ length: months + 1 }, (_, m) => { const x = L + m/months*(W-L-8); return `<line x1="${x}" x2="${x}" y1="8" y2="${H-B}" class="g"/><text x="${x}" y="${H-6}">${m === 0 ? "launch" : "M" + m}</text>`; }).join("");
+  const ticks = Array.from({ length: months + 1 }, (_, m) => { const x = L + m/months*(W-L-8); return `<line x1="${x}" x2="${x}" y1="8" y2="${H-B}" class="g"/><text x="${x}" y="${H-6}"${m === 0 ? ' data-i18n="ui.launchTick">launch' : ">M" + m}</text>`; }).join("");
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Supply reaches half of 50 million after the first 30 days and approaches the cap over time">
     ${ticks}<line x1="${L}" x2="${W-8}" y1="8" y2="8" class="cap"/><text x="${L-6}" y="12" class="y">50M</text><text x="${L-6}" y="${H-B}" class="y">0</text>
     <path d="${line} L ${W-8} ${H-B} L ${L} ${H-B} Z" class="area"/><path d="${line}" class="ln"/></svg>`;
 }
 
 // every section label is numbered like a spec sheet: §01 · Economy
-const head = (s, i) => `<p class="label rv"><span class="num">§${String(i + 1).padStart(2, "0")}</span>${s.label}</p><h${s.kind === "hero" ? 1 : 2} class="rv" style="--d:1">${s.title}</h${s.kind === "hero" ? 1 : 2}>`;
+const head = (s, i) => `<p class="label rv"><span class="num">§${String(i + 1).padStart(2, "0")}</span>${tx("s." + s.id + ".label", s.label)}</p><h${s.kind === "hero" ? 1 : 2} class="rv" style="--d:1">${tx("s." + s.id + ".title", s.title)}</h${s.kind === "hero" ? 1 : 2}>`;
 const INSTALL = "npm install -g " + location.origin + "/onyx-cli.tgz";
+const COPY = tx("ui.copy", "Copy");
 $("main").innerHTML = CONFIG.sections.map((s, idx) => {
   let inner = "";
-  const head_ = x => head(x, idx);
-  if (s.kind === "hero") inner = `<div class="half">${head_(s)}<p class="lede rv" style="--d:2">${s.body}</p>
-      <div class="btns rv" style="--d:3"><a class="launch" href="#access">${CONFIG.launch}</a><a class="ghost" href="#how">See how it works</a></div>
+  const head_ = x => head(x, idx), k = p => "s." + s.id + "." + p;
+  if (s.kind === "hero") inner = `<div class="half">${head_(s)}<p class="lede rv" style="--d:2">${tx(k("body"), s.body)}</p>
+      <div class="btns rv" style="--d:3"><a class="launch" href="#access">${tx("launch", CONFIG.launch)}</a><a class="ghost" href="#how">${tx("ui.howBtn", "See how it works")}</a></div>
       <div class="quick rv" style="--d:4">
-        <div class="qrow"><span>INSTALL</span><code id="q-install"></code><button type="button" data-copy="q-install">Copy</button></div>
-        <div class="qrow"><span>CA</span>${CONFIG.ca ? `<code id="q-ca">${CONFIG.ca}</code><button type="button" data-copy="q-ca">Copy</button>` : `<code class="soon">Coming soon</code><button type="button" disabled>Copy</button>`}</div>
+        <div class="qrow"><span>INSTALL</span><code id="q-install"></code><button type="button" data-copy="q-install">${COPY}</button></div>
+        <div class="qrow"><span>CA</span>${CONFIG.ca ? `<code id="q-ca">${CONFIG.ca}</code><button type="button" data-copy="q-ca">${COPY}</button>` : `<code class="soon">${tx("ui.soon", "Coming soon")}</code><button type="button" disabled>${COPY}</button>`}</div>
       </div></div>
-      <div class="scroll rv" style="--d:5">SCROLL<i></i></div>`;
-  if (s.kind === "specs") inner = `<div class="half">${head_(s)}<p class="lede rv" style="--d:2">${s.body}</p>
-      <div class="spec rv" style="--d:3"><header><span>Specifications</span><span>Rev 1.0</span></header><dl>${s.rows.map(([k,v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl></div>
-      <figure class="chart rv" style="--d:4"><figcaption><span>Supply schedule</span><span>Fig. 01</span></figcaption>${supplyChart()}</figure></div>`;
-  if (s.kind === "faq") inner = `<div class="half">${head_(s)}<div class="faq rv" style="--d:2">${s.items.map(([q,a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join("")}</div></div>`;
-  if (s.kind === "caps") inner = `<div class="half">${head_(s)}<ul class="caps">${s.items.map(([h,p],i) => `<li class="rv" style="--d:${i+2}"><b>0${i+1}</b><div><h3>${h}</h3><p>${p}</p></div></li>`).join("")}</ul></div>`;
-  if (s.kind === "steps") inner = `<div class="half">${head_(s)}</div><div class="steps">${s.steps.map(([h,p],i) => `<div class="step rv" style="--d:${i+2}"><b>0${i+1} /</b><h3>${h}</h3><p>${p}</p></div>`).join("")}</div>`;
-  if (s.kind === "demo") inner = `<div class="half">${head_(s)}</div><div class="term rv" style="--d:2"><header><i></i><i></i><i></i><span>onyx mine · simulated</span></header><pre id="log" aria-live="polite"></pre></div>`;
+      <div class="scroll rv" style="--d:5">${tx("ui.scroll", "SCROLL")}<i></i></div>`;
+  if (s.kind === "specs") inner = `<div class="half">${head_(s)}<p class="lede rv" style="--d:2">${tx(k("body"), s.body)}</p>
+      <div class="spec rv" style="--d:3"><header>${tx("ui.specs", "Specifications")}<span>Rev 1.0</span></header><dl>${s.rows.map(([a,b], i) => `<dt>${tx(k("rows." + i + ".k"), a)}</dt><dd>${tx(k("rows." + i + ".v"), b)}</dd>`).join("")}</dl></div>
+      <figure class="chart rv" style="--d:4"><figcaption>${tx("ui.supply", "Supply schedule")}${tx("ui.fig", "Fig. 01")}</figcaption>${supplyChart()}</figure></div>`;
+  if (s.kind === "faq") inner = `<div class="half">${head_(s)}<div class="faq rv" style="--d:2">${s.items.map(([q,a], i) => `<details><summary>${tx(k("items." + i + ".q"), q)}</summary><p>${tx(k("items." + i + ".a"), a)}</p></details>`).join("")}</div></div>`;
+  if (s.kind === "steps") inner = `<div class="half">${head_(s)}</div><div class="steps">${s.steps.map(([h,p],i) => `<div class="step rv" style="--d:${i+2}"><b>0${i+1} /</b><h3>${tx(k("steps." + i + ".h"), h)}</h3><p>${tx(k("steps." + i + ".p"), p)}</p></div>`).join("")}</div>`;
+  if (s.kind === "demo") inner = `<div class="half">${head_(s)}</div><div class="term rv" style="--d:2"><header><i></i><i></i><i></i>${tx("ui.simulated", "onyx mine · simulated")}</header><pre id="log" aria-live="polite"></pre></div>`;
   if (s.kind === "network") inner = `<div class="half">${head_(s)}</div>
       <div class="stats rv" style="--d:2">
-        <div><b>Active miners</b><strong id="n-miners">—</strong><small>last 10 minutes</small></div>
-        <div><b>Hashrate</b><strong id="n-rate">—</strong><small>estimated from shares</small></div>
-        <div><b>Current round</b><strong id="n-round">—</strong><small id="n-left">—</small></div>
-        <div><b>In circulation</b><strong id="n-circ">—</strong><small id="n-emit">—</small></div>
+        <div><b>${tx("ui.activeMiners", "Active miners")}</b><strong id="n-miners">—</strong><small>${tx("ui.last10", "last 10 minutes")}</small></div>
+        <div><b>Hashrate</b><strong id="n-rate">—</strong><small>${tx("ui.estimated", "estimated from shares")}</small></div>
+        <div><b>${tx("ui.currentRound", "Current round")}</b><strong id="n-round">—</strong><small id="n-left">—</small></div>
+        <div><b>${tx("ui.circulation", "In circulation")}</b><strong id="n-circ">—</strong><small id="n-emit">—</small></div>
       </div>
-      <figure class="chart wide rv" style="--d:3"><figcaption><span>Shares per round · last 60 minutes</span><span id="n-hist-sum">—</span></figcaption><svg id="n-hist" viewBox="0 0 600 90" preserveAspectRatio="none" role="img" aria-label="Shares per round over the last hour"></svg></figure>
+      <figure class="chart wide rv" style="--d:3"><figcaption>${tx("ui.histCap", "Shares per round · last 60 minutes")}<span id="n-hist-sum">—</span></figcaption><svg id="n-hist" viewBox="0 0 600 90" preserveAspectRatio="none" role="img" aria-label="Shares per round over the last hour"></svg></figure>
       <div class="tables rv" style="--d:3">
-        <div class="tbl"><h3>Latest rounds</h3><table><thead><tr><th>Round</th><th>Ended</th><th>Miners</th><th>Shares</th><th>Paid out</th></tr></thead><tbody id="n-rounds"><tr><td colspan="5">Loading…</td></tr></tbody></table></div>
-        <div class="tbl"><h3>Leaderboard</h3><table><thead><tr><th>#</th><th>Miner</th><th>Shares</th><th>Earned</th><th>Last active</th></tr></thead><tbody id="n-board"><tr><td colspan="5">Loading…</td></tr></tbody></table></div>
+        <div class="tbl"><h3>${tx("ui.latestRounds", "Latest rounds")}</h3><table><thead><tr><th>${tx("ui.th.round", "Round")}</th><th>${tx("ui.th.ended", "Ended")}</th><th>${tx("ui.th.miners", "Miners")}</th><th>${tx("ui.th.shares", "Shares")}</th><th>${tx("ui.th.paid", "Paid out")}</th></tr></thead><tbody id="n-rounds"><tr><td colspan="5">${tx("ui.loading", "Loading…")}</td></tr></tbody></table></div>
+        <div class="tbl"><h3>${tx("ui.leaderboard", "Leaderboard")}</h3><table><thead><tr><th>#</th><th>Miner</th><th>${tx("ui.th.shares", "Shares")}</th><th>${tx("ui.th.earned", "Earned")}</th><th>${tx("ui.th.last", "Last active")}</th></tr></thead><tbody id="n-board"><tr><td colspan="5">${tx("ui.loading", "Loading…")}</td></tr></tbody></table></div>
       </div>`;
-  if (s.kind === "access") inner = `${head_(s)}<p class="lede rv" style="--d:2">${s.body}</p>
-      <div class="btns rv" style="--d:3"><button class="launch" type="button" id="connect">${CONFIG.launch}</button></div>
+  if (s.kind === "access") inner = `${head_(s)}<p class="lede rv" style="--d:2">${tx(k("body"), s.body)}</p>
+      <div class="btns rv" style="--d:3"><button class="launch" type="button" id="connect">${tx("launch", CONFIG.launch)}</button></div>
       <div class="keybox" id="keybox" hidden>
-        <p class="label">Your miner</p>
+        <p class="label">${tx("ui.yourMiner", "Your miner")}</p>
         <p class="addr" id="k-addr"></p>
-        <div class="cmd"><span>API key</span><code id="k-key"></code><button type="button" data-copy="k-key">Copy</button></div>
-        <div class="cmd"><span>1 · Install</span><code id="k-install"></code><button type="button" data-copy="k-install">Copy</button></div>
-        <div class="cmd"><span>2 · Log in</span><code id="k-login"></code><button type="button" data-copy="k-login">Copy</button></div>
-        <div class="cmd"><span>3 · Mine</span><code>onyx mine</code><button type="button" data-copy-text="onyx mine">Copy</button></div>
-        <p class="bal">Earned <strong id="k-earned">0</strong> ONYX · <span id="k-shares">0</span> shares</p>
-        <p class="fine">Keep this key private: anyone with it can mine into your balance. Signing in again makes a new key and turns the old one off. This browser remembers it until you sign out.</p>
-        <p class="fine"><button type="button" class="reset" id="signout">Sign out on this browser</button></p>
+        <div class="cmd"><span>API key</span><code id="k-key"></code><button type="button" data-copy="k-key">${COPY}</button></div>
+        <div class="cmd"><span>1 · Install</span><code id="k-install"></code><button type="button" data-copy="k-install">${COPY}</button></div>
+        <div class="cmd">${tx("ui.step2", "2 · Log in")}<code id="k-login"></code><button type="button" data-copy="k-login">${COPY}</button></div>
+        <div class="cmd">${tx("ui.step3", "3 · Mine")}<code>onyx mine</code><button type="button" data-copy-text="onyx mine">${COPY}</button></div>
+        <p class="bal">${tx("ui.earned", "Earned")} <strong id="k-earned">0</strong> ONYX · <span id="k-shares">0</span> ${tx("ui.sharesWord", "shares")}</p>
+        <p class="fine">${tx("ui.keyFine", "Keep this key private: anyone with it can mine into your balance. Signing in again makes a new key and turns the old one off. This browser remembers it until you sign out.")}</p>
+        <p class="fine"><button type="button" class="reset" id="signout">${tx("ui.signout", "Sign out on this browser")}</button></p>
       </div>
       <p class="note" id="note" aria-live="polite"></p>`;
   const cls = ["k-" + s.kind, s.side === "right" ? "right" : ""].join(" ");
   return `<section id="${s.id}" class="${cls}">${inner}</section>`;
 }).join("");
-$("footer").innerHTML = `<span>${CONFIG.footer.left} ${new Date().getFullYear()} · SHA-256 proof-of-work · rev 1.0</span><span>${CONFIG.footer.links.filter(([,h]) => h && h !== "#").map(([t,h]) => `<a href="${h}">${t}</a>`).join("")}</span>`;
+$("footer").innerHTML = `<span>${CONFIG.footer.left} ${new Date().getFullYear()} · SHA-256 proof-of-work · rev 1.0</span><span>${CONFIG.footer.links.filter(([,h]) => h && h !== "#").map(([l,h]) => `<a href="${h}">${l === "Download CLI" ? tx("ui.footDl", l) : l}</a>`).join("")}</span>`;
 $("q-install").textContent = INSTALL;
+
+/* language picker */
+function setLang(next){
+  if (!EN.__ready) { document.querySelectorAll("[data-i18n]").forEach(el => { if (!(el.dataset.i18n in EN)) EN[el.dataset.i18n] = el.innerHTML; }); EN["doc.title"] = document.title; EN.__ready = 1; }
+  lang = LANG_NAMES[next] ? next : "en";
+  const dict = lang === "en" ? {} : LANGS[lang];
+  document.querySelectorAll("[data-i18n]").forEach(el => { const v = dict[el.dataset.i18n]; el.innerHTML = v != null ? v : EN[el.dataset.i18n]; });
+  document.title = dict["doc.title"] || EN["doc.title"];
+  document.documentElement.lang = lang;
+  $("langBtn").textContent = lang.toUpperCase();
+  document.querySelectorAll("#langList [data-lang]").forEach(b => b.setAttribute("aria-checked", b.dataset.lang === lang));
+  // refresh everything the script writes
+  menuBtn.textContent = nav.classList.contains("open") ? t("js.close", "CLOSE") : t("js.menu", "MENU");
+  $("connect").textContent = myKey ? t("js.signAgain", "Sign in again (new key)") : t("launch", CONFIG.launch);
+  $("note").textContent = "";
+  if (typeof refreshStats === "function") refreshStats();
+}
+$("langList").innerHTML = Object.entries(LANG_NAMES).map(([code, name]) => `<li><button type="button" role="menuitemradio" data-lang="${code}" aria-checked="${code === "en"}"><b>${code.toUpperCase()}</b>${name}</button></li>`).join("");
+const langWrap = $("lang"), langBtn = $("langBtn");
+const setLangOpen = open => { $("langList").hidden = !open; langBtn.setAttribute("aria-expanded", open); };
+langBtn.addEventListener("click", () => setLangOpen($("langList").hidden));
+$("langList").addEventListener("click", e => { const b = e.target.closest("[data-lang]"); if (!b) return; setLang(b.dataset.lang); setLangOpen(false); langBtn.focus(); });
+document.addEventListener("click", e => { if (!langWrap.contains(e.target)) setLangOpen(false); });
+addEventListener("keydown", e => { if (e.key === "Escape" && !$("langList").hidden) { setLangOpen(false); langBtn.focus(); } });
 
 /* mobile menu */
 const nav = $("nav"), menuBtn = $("menuBtn");
-const setMenu = open => { nav.classList.toggle("open", open); menuBtn.setAttribute("aria-expanded", open); menuBtn.textContent = open ? "CLOSE" : "MENU"; };
+const setMenu = open => { nav.classList.toggle("open", open); menuBtn.setAttribute("aria-expanded", open); menuBtn.textContent = open ? t("js.close", "CLOSE") : t("js.menu", "MENU"); };
 menuBtn.addEventListener("click", () => setMenu(!nav.classList.contains("open")));
 $("links").addEventListener("click", e => { if (e.target.closest("a")) setMenu(false); });
 addEventListener("keydown", e => { if (e.key === "Escape" && nav.classList.contains("open")) { setMenu(false); menuBtn.focus(); } });
@@ -444,7 +551,7 @@ $("launch").addEventListener("click", e => { e.preventDefault(); $("access").scr
 const fmtN = (n, d = 0) => Number(n).toLocaleString("en-US", { maximumFractionDigits: d });
 const fmtRate = h => h >= 1e9 ? fmtN(h/1e9, 2) + " GH/s" : h >= 1e6 ? fmtN(h/1e6, 2) + " MH/s" : h >= 1e3 ? fmtN(h/1e3, 1) + " kH/s" : fmtN(h) + " H/s";
 const short = a => a.slice(0, 6) + "…" + a.slice(-4);
-const ago = t => { if (!t) return "—"; const s = Math.max(0, Math.round((Date.now() - t)/1000)); return s < 60 ? s + "s ago" : s < 3600 ? Math.round(s/60) + "m ago" : Math.round(s/3600) + "h ago"; };
+const ago = t => { if (!t) return "—"; const s = Math.max(0, Math.round((Date.now() - t)/1000)); return s < 60 ? t("js.secAgo", "{n}s ago", { n: s }) : s < 3600 ? t("js.minAgo", "{n}m ago", { n: Math.round(s/60) }) : t("js.hAgo", "{n}h ago", { n: Math.round(s/3600) }); };
 const escH = t => String(t).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" })[c]);
 let net = null, skew = 0;
 // numbers glide to their new value instead of jumping (instant with reduced motion)
@@ -463,16 +570,16 @@ async function refreshStats(){
     countTo($("n-rate"), net.hashrate, fmtRate);
     $("n-round").textContent = "#" + net.round;
     countTo($("n-circ"), net.circulating, v => fmtN(v));
-    $("n-emit").textContent = fmtN(net.emissionPerRound, 1) + " / round · max " + fmtN(net.maxSupply);
-    $("hs0").textContent = "Network online · " + net.activeMiners + (net.activeMiners === 1 ? " miner" : " miners");
+    $("n-emit").textContent = fmtN(net.emissionPerRound, 1) + " " + t("js.perRound", "/ round") + " · " + t("js.max", "max") + " " + fmtN(net.maxSupply);
+    $("hs0").textContent = t("js.online", "Network online · {n} " + (net.activeMiners === 1 ? "miner" : "miners"), { n: net.activeMiners });
     $("hs1").textContent = fmtRate(net.hashrate);
-    $("hs3").textContent = fmtN(net.emissionPerRound, 1) + " / round";
+    $("hs3").textContent = fmtN(net.emissionPerRound, 1) + " " + t("js.perRound", "/ round");
     $("hs4").textContent = "#" + net.round;
     $("sp-emit").textContent = fmtN(net.emissionPerRound, 1);
-    $("n-rounds").innerHTML = net.rounds.length ? net.rounds.map(r => `<tr><td>#${r.id}</td><td>${ago(r.ended)}</td><td>${r.miners}</td><td>${r.shares}</td><td>${fmtN(r.emission, 1)}</td></tr>`).join("") : `<tr><td colspan="5">No rounds mined yet</td></tr>`;
-    $("n-board").innerHTML = net.leaderboard.length ? net.leaderboard.map((m, i) => { const me = myAddr && m.address === myAddr; return `<tr${me ? ' class="me"' : ""}><td>${i+1}</td><td title="${escH(m.address)}">${escH(short(m.address))}${me ? ' <em>you</em>' : ""}</td><td>${fmtN(m.shares)}</td><td>${fmtN(m.earned, 1)}</td><td>${ago(m.lastShare)}</td></tr>`; }).join("") : `<tr><td colspan="5">Be the first miner</td></tr>`;
+    $("n-rounds").innerHTML = net.rounds.length ? net.rounds.map(r => `<tr><td>#${r.id}</td><td>${ago(r.ended)}</td><td>${r.miners}</td><td>${r.shares}</td><td>${fmtN(r.emission, 1)}</td></tr>`).join("") : `<tr><td colspan="5">${t("js.noRounds", "No rounds mined yet")}</td></tr>`;
+    $("n-board").innerHTML = net.leaderboard.length ? net.leaderboard.map((m, i) => { const me = myAddr && m.address === myAddr; return `<tr${me ? ' class="me"' : ""}><td>${i+1}</td><td title="${escH(m.address)}">${escH(short(m.address))}${me ? " <em>" + t("js.you", "you") + "</em>" : ""}</td><td>${fmtN(m.shares)}</td><td>${fmtN(m.earned, 1)}</td><td>${ago(m.lastShare)}</td></tr>`; }).join("") : `<tr><td colspan="5">${t("js.first", "Be the first miner")}</td></tr>`;
     drawHistory(net.history || [], net.round);
-  } catch (e) { $("hs0").textContent = "network offline"; }
+  } catch (e) { $("hs0").textContent = t("js.offline", "network offline"); }
 }
 // activity chart: one bar per round of the last hour (empty rounds stay as a faint tick)
 function drawHistory(hist, round){
@@ -485,12 +592,12 @@ function drawHistory(hist, round){
     bars += `<rect x="${(i*bw + 1).toFixed(1)}" y="${(H - h).toFixed(1)}" width="${(bw - 2).toFixed(1)}" height="${h.toFixed(1)}" class="${v ? "b" : "e"}"><title>Round #${round - n + i}: ${v} shares${r ? ", " + r.miners + " miners" : ""}</title></rect>`;
   }
   $("n-hist").innerHTML = bars;
-  $("n-hist-sum").textContent = fmtN(total) + " shares";
+  $("n-hist-sum").textContent = t("js.shares", "{n} shares", { n: fmtN(total) });
 }
 setInterval(() => {
   if (!net) return;
   const left = Math.max(0, Math.ceil((net.roundEndsAt - (Date.now() + skew))/1000));
-  $("n-left").textContent = "ends in " + left + "s"; $("hs2").textContent = "round ends " + left + "s";
+  $("n-left").textContent = t("js.endsIn", "ends in {s}s", { s: left }); $("hs2").textContent = t("js.roundEnds", "round ends {s}s", { s: left });
   if (left === 0) refreshStats();
 }, 1000);
 refreshStats(); setInterval(refreshStats, 15000);
@@ -503,13 +610,13 @@ function showMiner(address, apiKey){
   $("k-addr").textContent = myAddr; $("k-key").textContent = apiKey;
   $("k-install").textContent = INSTALL;
   $("k-login").textContent = "onyx login " + apiKey + (location.origin === "http://127.0.0.1:4000" ? "" : " --server " + location.origin);
-  $("keybox").hidden = false; $("connect").textContent = "Sign in again (new key)";
+  $("keybox").hidden = false; $("connect").textContent = t("js.signAgain", "Sign in again (new key)");
   refreshMe(); refreshStats();
 }
 try { const saved = JSON.parse(localStorage.getItem(MINER) || "null"); if (saved && saved.apiKey && saved.address) showMiner(saved.address, saved.apiKey); } catch (e) {}
 $("signout").addEventListener("click", () => {
   try { localStorage.removeItem(MINER); } catch (e) {}
-  myKey = myAddr = null; $("keybox").hidden = true; $("connect").textContent = CONFIG.launch; $("note").textContent = "Signed out on this browser. Your balance stays with your wallet.";
+  myKey = myAddr = null; $("keybox").hidden = true; $("connect").textContent = t("launch", CONFIG.launch); $("note").textContent = t("js.signedOut", "Signed out on this browser. Your balance stays with your wallet.");
   refreshStats();
 });
 // wallets announce themselves (EIP-6963), so people with several extensions can pick one
@@ -532,19 +639,19 @@ function connect(){
   if (isPhone) {
     // phone browsers have no wallet: reopen this page inside a wallet app's browser
     const here = location.host + location.pathname;
-    note.innerHTML = `Open this page in your wallet app: <a href="https://metamask.app.link/dapp/${escH(here)}">MetaMask</a> · <a href="okx://wallet/dapp/url?dappUrl=${encodeURIComponent(location.href)}">OKX Wallet</a>`;
+    note.innerHTML = `${t("js.openIn", "Open this page in your wallet app:")} <a href="https://metamask.app.link/dapp/${escH(here)}">MetaMask</a> · <a href="okx://wallet/dapp/url?dappUrl=${encodeURIComponent(location.href)}">OKX Wallet</a>`;
     return;
   }
-  note.textContent = "No wallet found. Install MetaMask, OKX Wallet or Rabby, then try again.";
+  note.textContent = t("js.noWallet", "No wallet found. Install MetaMask, OKX Wallet or Rabby, then try again.");
 }
 
 async function signIn(provider){
   const note = $("note");
   try {
-    note.textContent = "Waiting for your wallet…";
+    note.textContent = t("js.waiting", "Waiting for your wallet…");
     const [address] = await provider.request({ method: "eth_requestAccounts" });
     const { message } = await (await fetch("/api/auth/nonce?address=" + address)).json();
-    note.textContent = "Sign the message in your wallet. It is free and moves no funds.";
+    note.textContent = t("js.signMsg", "Sign the message in your wallet. It is free and moves no funds.");
     const hex = "0x" + [...new TextEncoder().encode(message)].map(b => b.toString(16).padStart(2, "0")).join("");
     const signature = await provider.request({ method: "personal_sign", params: [hex, address] });
     const r = await fetch("/api/auth/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ address, signature }) });
@@ -552,7 +659,7 @@ async function signIn(provider){
     if (!r.ok) throw new Error(j.error || "sign-in failed");
     try { localStorage.setItem(MINER, JSON.stringify({ address: j.address, apiKey: j.apiKey })); } catch (e) {}
     note.textContent = ""; showMiner(j.address, j.apiKey);
-  } catch (e) { note.textContent = e.code === 4001 ? "Cancelled in the wallet." : "Could not sign in: " + e.message; }
+  } catch (e) { note.textContent = e.code === 4001 ? t("js.cancelled", "Cancelled in the wallet.") : t("js.failed", "Could not sign in: ") + e.message; }
 }
 async function refreshMe(){
   if (!myKey) return;
@@ -560,7 +667,7 @@ async function refreshMe(){
     const r = await fetch("/api/me", { headers: { Authorization: "Bearer " + myKey } });
     if (r.status === 401) { // key replaced from another browser: forget it here
       try { localStorage.removeItem(MINER); } catch (e) {}
-      myKey = myAddr = null; $("keybox").hidden = true; $("connect").textContent = CONFIG.launch; $("note").textContent = "Your key was replaced. Connect again to get a new one."; return;
+      myKey = myAddr = null; $("keybox").hidden = true; $("connect").textContent = t("launch", CONFIG.launch); $("note").textContent = t("js.replaced", "Your key was replaced. Connect again to get a new one."); return;
     }
     const me = await r.json(); countTo($("k-earned"), me.earned, v => fmtN(v, 4)); $("k-shares").textContent = fmtN(me.shares);
   } catch (e) {}
@@ -570,7 +677,7 @@ $("connect").addEventListener("click", connect);
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-copy],[data-copy-text]"); if (!b) return;
   const text = b.dataset.copyText || $(b.dataset.copy).textContent;
-  navigator.clipboard.writeText(text).then(() => { const t = b.textContent; b.textContent = "Copied"; setTimeout(() => b.textContent = t, 1200); }).catch(() => {});
+  navigator.clipboard.writeText(text).then(() => { const was = b.innerHTML; b.textContent = t("js.copied", "Copied"); setTimeout(() => b.innerHTML = was, 1200); }).catch(() => {});
 });
 
 const sections = [...document.querySelectorAll("main section")];
