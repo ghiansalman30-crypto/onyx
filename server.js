@@ -154,6 +154,7 @@ async function api(req, res, url) {
       maxSupply: MAX_SUPPLY,
       targetShareSeconds: TARGET_SHARE_MS / 1000,
       rounds: db.prepare("SELECT id, ended, miners, shares, emission FROM rounds ORDER BY id DESC LIMIT 8").all(),
+      history: db.prepare("SELECT id, miners, shares FROM rounds WHERE id > ? ORDER BY id").all(round - 61), // last hour, for the activity chart
       leaderboard: db.prepare("SELECT address, shares, earned, last_share lastShare FROM miners WHERE shares > 0 ORDER BY earned DESC LIMIT 10").all(),
     });
   }

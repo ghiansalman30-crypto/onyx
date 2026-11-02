@@ -147,6 +147,33 @@ button.launch{border:0;cursor:pointer;font-family:var(--sans)}
 .tbl td{padding:.5rem 1.2rem;border-bottom:1px solid var(--line);white-space:nowrap}
 .tbl tr:last-child td{border-bottom:0}
 
+/* charts */
+.chart{margin:1rem 0 0;width:min(34rem,100%);border:1px solid var(--line);border-radius:16px;overflow:hidden;background:color-mix(in srgb,var(--ivory) 66%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.chart.wide{width:auto;align-self:stretch}
+.chart figcaption{display:flex;justify-content:space-between;padding:.85rem 1.2rem;border-bottom:1px solid var(--line);font:500 .64rem/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.chart svg{display:block;width:100%;height:auto;padding:.8rem 1rem .6rem}
+.chart.wide svg{height:96px}
+.chart text{font:400 9px var(--mono);fill:var(--muted);text-anchor:middle}
+.chart text.y{text-anchor:end}
+.chart .g{stroke:var(--line);stroke-width:1}
+.chart .cap{stroke:var(--ink);stroke-width:1;stroke-dasharray:3 4;opacity:.5}
+.chart .area{fill:var(--ink);opacity:.08}
+.chart .ln{fill:none;stroke:var(--ink);stroke-width:1.6}
+.chart .b{fill:var(--ink)}
+.chart .e{fill:var(--faint);opacity:.5}
+
+/* faq */
+.faq{margin-top:2rem;width:min(36rem,100%);border-top:1px solid var(--line)}
+.faq details{border-bottom:1px solid var(--line)}
+.faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:1rem;padding:1.05rem 0;font-size:.98rem}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font:400 1.1rem/1 var(--mono);color:var(--muted);transition:transform .25s}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq p{margin:0 0 1.1rem;font-size:.86rem;line-height:1.6;color:var(--muted);max-width:52ch}
+
+.tbl tr.me td{font-weight:500;background:color-mix(in srgb,var(--ink) 6%,transparent)}
+.tbl em{font-style:normal;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;padding:.1rem .4rem;border-radius:999px;background:var(--ink);color:var(--ivory);margin-left:.3rem}
+
 /* key box */
 .keybox{margin-top:2rem;width:min(40rem,100%);text-align:left;border:1px solid var(--line);border-radius:16px;padding:1.3rem;background:color-mix(in srgb,var(--ivory) 72%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .keybox[hidden]{display:none}
@@ -261,7 +288,7 @@ const CONFIG = {
   brand: "ONYX",
   coreSize: .68,          // overall size of the sphere and everything orbiting it (1 = original)
   launch: "Connect wallet",
-  links: [["How it works","#how"],["Economy","#economy"],["Network","#network"],["Mine","#access"]],
+  links: [["How it works","#how"],["Economy","#economy"],["Network","#network"],["FAQ","#faq"],["Mine","#access"]],
   sections: [
     { id:"top", kind:"hero", pose:{ pos:[1.2, .22], scale:1, turb:.5, shape:"sphere", veil:1 },
       label:"SHA-256 · Proof-of-work",
@@ -299,6 +326,14 @@ const CONFIG = {
       ] },
     { id:"network", kind:"network", side:"left", pose:{ pos:[1.75, .62], scale:.5, turb:.9, shape:"disc", veil:.3 },
       label:"Network · live", title:"Every round,<br>on the record" },
+    { id:"faq", kind:"faq", side:"left", pose:{ pos:[1.65, .15], scale:.74, turb:.6, shape:"torus", veil:.3 },
+      label:"Questions", title:"Before you<br>start mining",
+      items:[["Is the miner safe to run?","Yes. The CLI only computes SHA-256 hashes and talks to the ONYX server with your API key. It never asks for your wallet's private key or seed phrase, and it cannot move funds."],
+             ["Does signing in cost gas?","No. Signing in is a plain message signature that proves you own the wallet. No transaction is sent and nothing is spent."],
+             ["When can I withdraw my ONYX?","Your balance is recorded every round from the first share you submit. Claiming it on-chain opens when the ONYX token launches; the contract address will appear on this page."],
+             ["My CPU is busy. Can I limit it?","Yes. Run onyx mine --threads 2 (or any number) to leave the rest of your cores free. Stop any time with Ctrl+C."],
+             ["Can bots or big farms take everything?","No one can print more ONYX than the round emission. Extra machines only split the same fixed amount, and difficulty adjusts per miner."],
+             ["I lost my API key.","Connect the same wallet again to get a new key. The old key stops working, your balance stays with the wallet."]] },
     { id:"access", kind:"access", pose:{ pos:[0, .45], scale:1.12, turb:1.6, shape:"spindle", veil:.55 },
       label:"Start mining", title:"Put your CPU<br>to work",
       body:"Free, no password, just a wallet. Sign once to get your API key, then mine from any terminal." }
@@ -329,6 +364,17 @@ const clamp01 = v => Math.min(1, Math.max(0, v)), smooth = t => t*t*(3-2*t), ler
 $("brandName").textContent = CONFIG.brand;
 $("launch").textContent = CONFIG.launch;
 $("links").innerHTML = CONFIG.links.map(([t,h]) => `<li><a href="${h}">${t}</a></li>`).join("");
+// Fig. 01: total supply over time, stepping down at each 30-day halving (supply after n periods = max * (1 - 2^-n))
+function supplyChart(){
+  const W = 520, H = 150, L = 34, B = 22, months = 8, pts = [];
+  for (let d = 0; d <= months*30; d += 2) { const n = d/30; pts.push([L + d/(months*30)*(W-L-8), 8 + (H-B-8)*(1 - (1 - Math.pow(2, -n)))]); }
+  const line = pts.map((p,i) => (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" ");
+  const ticks = Array.from({ length: months + 1 }, (_, m) => { const x = L + m/months*(W-L-8); return `<line x1="${x}" x2="${x}" y1="8" y2="${H-B}" class="g"/><text x="${x}" y="${H-6}">${m === 0 ? "launch" : "M" + m}</text>`; }).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Supply reaches half of 50 million after the first 30 days and approaches the cap over time">
+    ${ticks}<line x1="${L}" x2="${W-8}" y1="8" y2="8" class="cap"/><text x="${L-6}" y="12" class="y">50M</text><text x="${L-6}" y="${H-B}" class="y">0</text>
+    <path d="${line} L ${W-8} ${H-B} L ${L} ${H-B} Z" class="area"/><path d="${line}" class="ln"/></svg>`;
+}
+
 // every section label is numbered like a spec sheet: §01 · Economy
 const head = (s, i) => `<p class="label rv"><span class="num">§${String(i + 1).padStart(2, "0")}</span>${s.label}</p><h${s.kind === "hero" ? 1 : 2} class="rv" style="--d:1">${s.title}</h${s.kind === "hero" ? 1 : 2}>`;
 const INSTALL = "npm install -g " + location.origin + "/onyx-cli.tgz";
@@ -343,7 +389,9 @@ $("main").innerHTML = CONFIG.sections.map((s, idx) => {
       </div></div>
       <div class="scroll rv" style="--d:5">SCROLL<i></i></div>`;
   if (s.kind === "specs") inner = `<div class="half">${head_(s)}<p class="lede rv" style="--d:2">${s.body}</p>
-      <div class="spec rv" style="--d:3"><header><span>Specifications</span><span>Rev 1.0</span></header><dl>${s.rows.map(([k,v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl></div></div>`;
+      <div class="spec rv" style="--d:3"><header><span>Specifications</span><span>Rev 1.0</span></header><dl>${s.rows.map(([k,v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl></div>
+      <figure class="chart rv" style="--d:4"><figcaption><span>Supply schedule</span><span>Fig. 01</span></figcaption>${supplyChart()}</figure></div>`;
+  if (s.kind === "faq") inner = `<div class="half">${head_(s)}<div class="faq rv" style="--d:2">${s.items.map(([q,a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join("")}</div></div>`;
   if (s.kind === "caps") inner = `<div class="half">${head_(s)}<ul class="caps">${s.items.map(([h,p],i) => `<li class="rv" style="--d:${i+2}"><b>0${i+1}</b><div><h3>${h}</h3><p>${p}</p></div></li>`).join("")}</ul></div>`;
   if (s.kind === "steps") inner = `<div class="half">${head_(s)}</div><div class="steps">${s.steps.map(([h,p],i) => `<div class="step rv" style="--d:${i+2}"><b>0${i+1} /</b><h3>${h}</h3><p>${p}</p></div>`).join("")}</div>`;
   if (s.kind === "demo") inner = `<div class="half">${head_(s)}</div><div class="term rv" style="--d:2"><header><i></i><i></i><i></i><span>onyx mine · simulated</span></header><pre id="log" aria-live="polite"></pre></div>`;
@@ -354,6 +402,7 @@ $("main").innerHTML = CONFIG.sections.map((s, idx) => {
         <div><b>Current round</b><strong id="n-round">—</strong><small id="n-left">—</small></div>
         <div><b>In circulation</b><strong id="n-circ">—</strong><small id="n-emit">—</small></div>
       </div>
+      <figure class="chart wide rv" style="--d:3"><figcaption><span>Shares per round · last 60 minutes</span><span id="n-hist-sum">—</span></figcaption><svg id="n-hist" viewBox="0 0 600 90" preserveAspectRatio="none" role="img" aria-label="Shares per round over the last hour"></svg></figure>
       <div class="tables rv" style="--d:3">
         <div class="tbl"><h3>Latest rounds</h3><table><thead><tr><th>Round</th><th>Ended</th><th>Miners</th><th>Shares</th><th>Paid out</th></tr></thead><tbody id="n-rounds"><tr><td colspan="5">Loading…</td></tr></tbody></table></div>
         <div class="tbl"><h3>Leaderboard</h3><table><thead><tr><th>#</th><th>Miner</th><th>Shares</th><th>Earned</th><th>Last active</th></tr></thead><tbody id="n-board"><tr><td colspan="5">Loading…</td></tr></tbody></table></div>
@@ -368,7 +417,8 @@ $("main").innerHTML = CONFIG.sections.map((s, idx) => {
         <div class="cmd"><span>2 · Log in</span><code id="k-login"></code><button type="button" data-copy="k-login">Copy</button></div>
         <div class="cmd"><span>3 · Mine</span><code>onyx mine</code><button type="button" data-copy-text="onyx mine">Copy</button></div>
         <p class="bal">Earned <strong id="k-earned">0</strong> ONYX · <span id="k-shares">0</span> shares</p>
-        <p class="fine">This key is shown once. Keep it private: anyone with it can mine into your balance. Signing in again makes a new key and turns the old one off.</p>
+        <p class="fine">Keep this key private: anyone with it can mine into your balance. Signing in again makes a new key and turns the old one off. This browser remembers it until you sign out.</p>
+        <p class="fine"><button type="button" class="reset" id="signout">Sign out on this browser</button></p>
       </div>
       <p class="note" id="note" aria-live="polite"></p>`;
   const cls = ["k-" + s.kind, s.side === "right" ? "right" : ""].join(" ");
@@ -407,8 +457,22 @@ async function refreshStats(){
     $("hs4").textContent = "#" + net.round;
     $("sp-emit").textContent = fmtN(net.emissionPerRound, 1);
     $("n-rounds").innerHTML = net.rounds.length ? net.rounds.map(r => `<tr><td>#${r.id}</td><td>${ago(r.ended)}</td><td>${r.miners}</td><td>${r.shares}</td><td>${fmtN(r.emission, 1)}</td></tr>`).join("") : `<tr><td colspan="5">No rounds mined yet</td></tr>`;
-    $("n-board").innerHTML = net.leaderboard.length ? net.leaderboard.map((m, i) => `<tr><td>${i+1}</td><td title="${escH(m.address)}">${escH(short(m.address))}</td><td>${fmtN(m.shares)}</td><td>${fmtN(m.earned, 1)}</td><td>${ago(m.lastShare)}</td></tr>`).join("") : `<tr><td colspan="5">Be the first miner</td></tr>`;
+    $("n-board").innerHTML = net.leaderboard.length ? net.leaderboard.map((m, i) => { const me = myAddr && m.address === myAddr; return `<tr${me ? ' class="me"' : ""}><td>${i+1}</td><td title="${escH(m.address)}">${escH(short(m.address))}${me ? ' <em>you</em>' : ""}</td><td>${fmtN(m.shares)}</td><td>${fmtN(m.earned, 1)}</td><td>${ago(m.lastShare)}</td></tr>`; }).join("") : `<tr><td colspan="5">Be the first miner</td></tr>`;
+    drawHistory(net.history || [], net.round);
   } catch (e) { $("hs0").textContent = "network offline"; }
+}
+// activity chart: one bar per round of the last hour (empty rounds stay as a faint tick)
+function drawHistory(hist, round){
+  const by = new Map(hist.map(h => [h.id, h])), n = 60, W = 600, H = 90, bw = W/n;
+  const max = Math.max(1, ...hist.map(h => h.shares));
+  let bars = "", total = 0;
+  for (let i = 0; i < n; i++) {
+    const r = by.get(round - n + i), v = r ? r.shares : 0; total += v;
+    const h = v ? Math.max(3, (H - 6)*v/max) : 1.5;
+    bars += `<rect x="${(i*bw + 1).toFixed(1)}" y="${(H - h).toFixed(1)}" width="${(bw - 2).toFixed(1)}" height="${h.toFixed(1)}" class="${v ? "b" : "e"}"><title>Round #${round - n + i}: ${v} shares${r ? ", " + r.miners + " miners" : ""}</title></rect>`;
+  }
+  $("n-hist").innerHTML = bars;
+  $("n-hist-sum").textContent = fmtN(total) + " shares";
 }
 setInterval(() => {
   if (!net) return;
@@ -419,7 +483,22 @@ setInterval(() => {
 refreshStats(); setInterval(refreshStats, 15000);
 
 /* ---------- mining: wallet sign-in ---------- */
-let myKey = null;
+let myKey = null, myAddr = null;
+const MINER = "onyx-miner";
+function showMiner(address, apiKey){
+  myKey = apiKey; myAddr = address.toLowerCase();
+  $("k-addr").textContent = myAddr; $("k-key").textContent = apiKey;
+  $("k-install").textContent = INSTALL;
+  $("k-login").textContent = "onyx login " + apiKey + (location.origin === "http://127.0.0.1:4000" ? "" : " --server " + location.origin);
+  $("keybox").hidden = false; $("connect").textContent = "Sign in again (new key)";
+  refreshMe(); refreshStats();
+}
+try { const saved = JSON.parse(localStorage.getItem(MINER) || "null"); if (saved && saved.apiKey && saved.address) showMiner(saved.address, saved.apiKey); } catch (e) {}
+$("signout").addEventListener("click", () => {
+  try { localStorage.removeItem(MINER); } catch (e) {}
+  myKey = myAddr = null; $("keybox").hidden = true; $("connect").textContent = CONFIG.launch; $("note").textContent = "Signed out on this browser. Your balance stays with your wallet.";
+  refreshStats();
+});
 async function connect(){
   const note = $("note");
   if (!window.ethereum) { note.textContent = "No wallet found. Install MetaMask, OKX Wallet or Rabby, then try again."; return; }
@@ -433,17 +512,20 @@ async function connect(){
     const r = await fetch("/api/auth/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ address, signature }) });
     const j = await r.json();
     if (!r.ok) throw new Error(j.error || "sign-in failed");
-    myKey = j.apiKey;
-    $("k-addr").textContent = j.address; $("k-key").textContent = j.apiKey;
-    $("k-install").textContent = "npm install -g " + location.origin + "/onyx-cli.tgz";
-    $("k-login").textContent = "onyx login " + j.apiKey + (location.origin === "http://127.0.0.1:4000" ? "" : " --server " + location.origin);
-    $("keybox").hidden = false; $("connect").textContent = "Sign in again (new key)";
-    note.textContent = ""; refreshMe();
+    try { localStorage.setItem(MINER, JSON.stringify({ address: j.address, apiKey: j.apiKey })); } catch (e) {}
+    note.textContent = ""; showMiner(j.address, j.apiKey);
   } catch (e) { note.textContent = e.code === 4001 ? "Cancelled in the wallet." : "Could not sign in: " + e.message; }
 }
 async function refreshMe(){
   if (!myKey) return;
-  try { const me = await (await fetch("/api/me", { headers: { Authorization: "Bearer " + myKey } })).json(); $("k-earned").textContent = fmtN(me.earned, 4); $("k-shares").textContent = fmtN(me.shares); } catch (e) {}
+  try {
+    const r = await fetch("/api/me", { headers: { Authorization: "Bearer " + myKey } });
+    if (r.status === 401) { // key replaced from another browser: forget it here
+      try { localStorage.removeItem(MINER); } catch (e) {}
+      myKey = myAddr = null; $("keybox").hidden = true; $("connect").textContent = CONFIG.launch; $("note").textContent = "Your key was replaced. Connect again to get a new one."; return;
+    }
+    const me = await r.json(); $("k-earned").textContent = fmtN(me.earned, 4); $("k-shares").textContent = fmtN(me.shares);
+  } catch (e) {}
 }
 setInterval(refreshMe, 15000);
 $("connect").addEventListener("click", connect);
