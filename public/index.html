@@ -10,8 +10,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#cdc6bd; --ink:#15191e; --muted:#4b5259; --faint:#868b90; --line:rgba(20,25,30,.16); --chip:rgba(255,255,255,.42);
-  --tint:#2c4a66; --ok:#2f6b4a;
+  /* palette: Charcoal #2A2529 + Pale Ivory #F3F0E7 */
+  --bg:#f3f0e7; --ivory:#f3f0e7; --ink:#2a2529; --muted:#6b6467; --faint:#a39d9b; --line:rgba(42,37,41,.14); --chip:rgba(243,240,231,.62);
+  --tint:#2a2529; --ok:#2a2529;
   --pad:clamp(18px,3.4vw,48px);
   --sans:Geist,"Helvetica Neue",Arial,sans-serif; --mono:"Geist Mono",ui-monospace,Menlo,monospace;
   color-scheme:light; box-sizing:border-box;
@@ -22,7 +23,7 @@
 *,*::before,*::after{box-sizing:inherit}
 html{background:var(--bg);scroll-padding-top:calc(env(safe-area-inset-top,0px) + 80px)}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
-#gl{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none;background:#cdc6bd}
+#gl{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none;background:var(--ivory)}
 main{position:relative;z-index:2}
 
 .nav{position:fixed;z-index:10;top:calc(env(safe-area-inset-top,0px) + 16px);left:var(--pad);right:var(--pad);display:flex;justify-content:space-between;align-items:center;gap:1rem}
@@ -33,8 +34,8 @@ body::before{content:"";position:fixed;top:0;left:0;right:0;height:env(safe-area
 .links{display:flex;gap:clamp(1rem,2.6vw,2.4rem);margin:0;padding:.7rem 1.2rem;list-style:none;border:1px solid var(--line);border-radius:999px;background:var(--chip);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .links a{color:var(--muted);text-decoration:none;font-size:.76rem}
 .links a:hover,.links a[aria-current="true"]{color:var(--ink)}
-.launch{display:inline-flex;align-items:center;gap:.5rem;padding:.65rem 1.1rem;border-radius:999px;background:var(--ink);color:#f4f1ec;text-decoration:none;font-size:.76rem;font-weight:500}
-.launch:hover{background:#000}
+.launch{display:inline-flex;align-items:center;gap:.5rem;padding:.65rem 1.1rem;border-radius:999px;background:var(--ink);color:var(--ivory);text-decoration:none;font-size:.76rem;font-weight:500}
+.launch:hover{background:#1a1619}
 
 section{position:relative;min-height:100vh;min-height:100svh;padding:calc(env(safe-area-inset-top,0px) + 120px) var(--pad) calc(env(safe-area-inset-bottom,0px) + 70px);display:flex;flex-direction:column;justify-content:center}
 .label{font:500 .66rem/1 var(--mono);letter-spacing:.18em;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;gap:.7rem;margin:0 0 1.4rem}
@@ -71,13 +72,13 @@ h2{font-size:clamp(2.1rem,4.6vw,4.4rem);line-height:.98}
 
 /* how it works */
 .steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;margin-top:3rem;width:100%;align-self:stretch;text-align:left;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden}
-.step{background:color-mix(in srgb,#fff 45%,transparent);padding:1.6rem 1.3rem 1.8rem;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.step{background:color-mix(in srgb,var(--ivory) 55%,transparent);padding:1.6rem 1.3rem 1.8rem;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 .step b{display:block;font:500 .66rem/1 var(--mono);color:var(--muted);margin-bottom:2.6rem}
 .step h3{margin:0 0 .5rem;font-size:1rem;font-weight:500}
 .step p{margin:0;font-size:.8rem;line-height:1.55;color:var(--muted)}
 
 /* terminal */
-.term{margin-top:2.4rem;width:min(40rem,100%);border:1px solid var(--line);border-radius:14px;background:color-mix(in srgb,#fff 50%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);overflow:hidden}
+.term{margin-top:2.4rem;width:min(40rem,100%);border:1px solid var(--line);border-radius:14px;background:color-mix(in srgb,var(--ivory) 60%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);overflow:hidden}
 .term header{display:flex;align-items:center;gap:.4rem;padding:.75rem 1rem;border-bottom:1px solid var(--line);font:400 .66rem/1 var(--mono);color:var(--muted)}
 .term header i{width:8px;height:8px;border-radius:50%;background:var(--faint)}
 .term header span{margin-left:auto}
@@ -92,19 +93,19 @@ h2{font-size:clamp(2.1rem,4.6vw,4.4rem);line-height:.98}
 .form{display:flex;gap:.5rem;margin-top:2rem;padding:.35rem;border:1px solid var(--line);border-radius:999px;background:var(--chip);width:min(28rem,100%)}
 .form input{flex:1;min-width:0;background:none;border:0;color:var(--ink);font:400 .86rem var(--sans);padding:.6rem .9rem;outline:none}
 .form input::placeholder{color:var(--faint)}
-.form button{border:0;border-radius:999px;background:var(--ink);color:#f4f1ec;font:500 .78rem var(--sans);padding:.65rem 1.2rem;cursor:pointer}
+.form button{border:0;border-radius:999px;background:var(--ink);color:var(--ivory);font:500 .78rem var(--sans);padding:.65rem 1.2rem;cursor:pointer}
 .form:focus-within{border-color:var(--muted)}
 .note{min-height:1.2em;margin:.9rem 0 0;font:400 .7rem var(--mono);color:var(--muted)}
 button.launch{border:0;cursor:pointer;font-family:var(--sans)}
 
 /* network */
 .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;margin-top:2.4rem;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden;align-self:stretch}
-.stats>div{background:color-mix(in srgb,#fff 62%,transparent);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:1.2rem 1.3rem 1.3rem;display:grid;gap:.5rem}
+.stats>div{background:color-mix(in srgb,var(--ivory) 70%,transparent);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:1.2rem 1.3rem 1.3rem;display:grid;gap:.5rem}
 .stats b{font:500 .64rem/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .stats strong{font-size:clamp(1.4rem,2.4vw,2rem);font-weight:300;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 .stats small{font:400 .68rem var(--mono);color:var(--muted)}
 .tables{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;align-self:stretch}
-.tbl{border:1px solid var(--line);border-radius:16px;overflow:auto;background:color-mix(in srgb,#fff 62%,transparent);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.tbl{border:1px solid var(--line);border-radius:16px;overflow:auto;background:color-mix(in srgb,var(--ivory) 70%,transparent);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 .tbl h3{margin:0;padding:1rem 1.2rem .6rem;font-size:.9rem;font-weight:500}
 .tbl table{width:100%;border-collapse:collapse;font:400 .74rem/1.4 var(--mono);font-variant-numeric:tabular-nums}
 .tbl th{text-align:left;font-weight:500;color:var(--muted);padding:.5rem 1.2rem;border-bottom:1px solid var(--line);white-space:nowrap}
@@ -112,7 +113,7 @@ button.launch{border:0;cursor:pointer;font-family:var(--sans)}
 .tbl tr:last-child td{border-bottom:0}
 
 /* key box */
-.keybox{margin-top:2rem;width:min(40rem,100%);text-align:left;border:1px solid var(--line);border-radius:16px;padding:1.3rem;background:color-mix(in srgb,#fff 55%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.keybox{margin-top:2rem;width:min(40rem,100%);text-align:left;border:1px solid var(--line);border-radius:16px;padding:1.3rem;background:color-mix(in srgb,var(--ivory) 72%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .keybox[hidden]{display:none}
 .keybox .label{margin-bottom:.6rem}
 .addr{margin:0 0 1rem;font:400 .8rem var(--mono);word-break:break-all}
@@ -132,21 +133,21 @@ footer a{color:var(--muted);text-decoration:none;margin-left:1.2rem}
 
 /* tune */
 .tune-btn{position:fixed;left:var(--pad);bottom:calc(env(safe-area-inset-bottom,0px) + 18px);z-index:12;appearance:none;border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:999px;padding:.55rem 1rem;font:500 .7rem/1 var(--mono);letter-spacing:.08em;cursor:pointer;backdrop-filter:blur(8px)}
-.tune{position:fixed;left:var(--pad);bottom:calc(env(safe-area-inset-bottom,0px) + 62px);z-index:12;width:min(300px,calc(100vw - 2*var(--pad)));padding:1.1rem;border-radius:16px;background:rgba(245,242,237,.88);border:1px solid var(--line);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);font-size:.76rem}
+.tune{position:fixed;left:var(--pad);bottom:calc(env(safe-area-inset-bottom,0px) + 62px);z-index:12;width:min(300px,calc(100vw - 2*var(--pad)));padding:1.1rem;border-radius:16px;background:rgba(243,240,231,.92);border:1px solid var(--line);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);font-size:.76rem}
 .tune[hidden]{display:none}
 .tune h2{margin:0 0 .9rem;font-size:.95rem;font-weight:500;letter-spacing:0}
 .row{margin:0 0 .9rem;border:0;padding:0}
 .row legend,.row .lbl{display:flex;justify-content:space-between;width:100%;margin-bottom:.45rem;color:var(--muted)}
 .sw{display:flex;gap:.5rem}
 .sw input{position:absolute;opacity:0;pointer-events:none}
-.sw label{width:26px;height:26px;border-radius:50%;cursor:pointer;background:var(--g);box-shadow:inset 0 0 0 2px rgba(0,0,0,.18);display:block}
+.sw label{width:26px;height:26px;border-radius:50%;cursor:pointer;background:var(--g);box-shadow:inset 0 0 0 2px rgba(42,37,41,.18);display:block}
 .sw input:checked + label{outline:2px solid var(--ink);outline-offset:2px}
 .sw input:focus-visible + label{outline:2px dashed var(--ink);outline-offset:3px}
 input[type=range]{width:100%;accent-color:var(--ink)}
 .seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:999px;overflow:hidden}
 .seg input{position:absolute;opacity:0;pointer-events:none}
 .seg label{text-align:center;padding:.42rem 0;cursor:pointer;color:var(--muted)}
-.seg input:checked + label{background:var(--ink);color:#f4f1ec}
+.seg input:checked + label{background:var(--ink);color:var(--ivory)}
 .seg input:focus-visible + label{outline:1px dashed var(--ink);outline-offset:-3px}
 .reset{appearance:none;background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;padding:0;font:inherit}
 :focus-visible{outline:1px solid var(--ink);outline-offset:3px}
@@ -249,17 +250,18 @@ const CONFIG = {
   footer:{ left:"© ONYX LABS", links:[["Docs","#"],["X","#"],["GitHub","#"]] },
   // each tint: c1/c2/c3 flow across the core, edge colours the torn rims, ring colours the orbits
   tints:{
+    onyx:    { label:"Onyx",     c1:"#6e676b", c2:"#f3f0e7", c3:"#2a2529", edge:"#f3f0e7", ring:"#2a2529" },
     graphite:{ label:"Graphite", c1:"#8c8c8c", c2:"#d9d9d9", c3:"#5a5a5a", edge:"#f0f0f0", ring:"#8a8a8a" },
     silver:  { label:"Silver",   c1:"#b5b5b5", c2:"#f2f2f2", c3:"#848484", edge:"#ffffff", ring:"#a8a8a8" },
     steel:   { label:"Steel",    c1:"#7f8790", c2:"#cfd5db", c3:"#545b63", edge:"#e8eef4", ring:"#7c858e" },
     smoke:   { label:"Smoke",    c1:"#8f8a84", c2:"#d6d1cb", c3:"#5e5955", edge:"#efebe6", ring:"#8a857f" },
     mono:    { label:"White",    c1:"#f4f4f2", c2:"#bdbdbb", c3:"#ffffff", edge:"#ffffff", ring:"#9a9a98" }
   },
-  defaults:{ tint:"graphite", shards:40, chroma:.45, grain:1, rings:8, speed:1, morph:"scroll", liquid:.7 }
+  defaults:{ tint:"onyx", shards:40, chroma:.45, grain:1, rings:8, speed:1, morph:"scroll", liquid:.7 }
 };
 
 /* ---------- settings ---------- */
-const STORE = "onyx-tune-v5";
+const STORE = "onyx-tune-v6";
 const load = () => { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch (e) { return {}; } };
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify(settings)); } catch (e) {} };
 let settings = Object.assign({}, CONFIG.defaults, load());
@@ -595,22 +597,22 @@ const post = new THREE.ShaderMaterial({
     float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233)))*43758.5453); }
     float n2(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.-2.*f);
       return mix(mix(h(i), h(i+vec2(1,0)), f.x), mix(h(i+vec2(0,1)), h(i+vec2(1,1)), f.x), f.y); }
-    // BACKGROUND: a soft blue-grey haze drifting over warm beige, with film grain.
+    // BACKGROUND: soft charcoal smoke drifting over pale ivory, with film grain.
     // Two blurred blobs sit on the left (as in the reference), slowly breathing and wandering.
     vec3 backdrop(vec2 uv){
       // measured in units of the screen's short side, so blobs keep their size on phones and desktops
       float mn = min(uRes.x, uRes.y), W = uRes.x/mn, H = uRes.y/mn, t = uTime*.06;
       vec2 p = uv*vec2(W, H);
       p += (vec2(n2(p*1.3 + t), n2(p*1.3 - t + 7.)) - .5)*.22;          // slow liquid warp of the whole field
-      vec3 col = mix(vec3(.80,.77,.73), vec3(.86,.82,.77), smoothstep(.0, 1., uv.x)); // beige, lighter to the right
+      vec3 col = mix(vec3(.90,.885,.85), vec3(.953,.941,.906), smoothstep(.0, 1., uv.x)); // pale ivory, lighter to the right
       vec2 c1 = vec2(.30*W + .06*sin(t*1.7), .70*H + .05*cos(t*1.3));
       vec2 c2 = vec2(.26*W + .07*cos(t*1.2 + 1.), .27*H + .05*sin(t*1.5 + 2.));
       float b1 = exp(-dot(p - c1, p - c1)/(.11 + .015*sin(t*2.1)));
       float b2 = exp(-dot(p - c2, p - c2)/(.14 + .02*cos(t*1.8)));
       float haze = exp(-pow(p.x - .15*W, 2.)/(.14*W*W))*.55;               // a wide cool veil down the left edge
-      col = mix(col, vec3(.62,.66,.68), haze);
-      col = mix(col, vec3(.44,.52,.59), b1*.72);
-      col = mix(col, vec3(.39,.48,.56), b2*.82);
+      col = mix(col, vec3(.82,.80,.78), haze);
+      col = mix(col, vec3(.55,.52,.53), b1*.55);                     // charcoal smoke
+      col = mix(col, vec3(.45,.41,.43), b2*.6);
       // grain: fine, flickering a little like film
       float g = h(floor(gl_FragCoord.xy) + floor(uTime*10.)*31.) - .5;
       return col + g*.11*uGrain;
@@ -701,7 +703,7 @@ $("swatches").innerHTML = Object.entries(CONFIG.tints).map(([k,t]) =>
 function apply(rebuild){
   const t = CONFIG.tints[settings.tint];
   U.uC1.value.set(t.c1); U.uC2.value.set(t.c2); U.uC3.value.set(t.c3); U.uEdge.value.set(t.edge);
-  ringMat.color.set(t.ring); ringDash.color.set(t.edge); satMat.color.set(t.edge);
+  ringMat.color.set(t.ring); ringDash.color.set(t.ring); satMat.color.set(t.ring); // dark lines read cleanly on the ivory backdrop
 
   document.documentElement.style.setProperty("--tint", t.c3);
   document.documentElement.style.setProperty("--ok", t.c3);
