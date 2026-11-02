@@ -4,7 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ONYX · Mine from your terminal</title>
-<link rel="icon" href="logo.jpg">
+<meta name="description" content="ONYX is a coin you mine from your terminal with SHA-256 proof-of-work. Connect a wallet, get an API key, run onyx mine.">
+<meta name="theme-color" content="#f3f0e7">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ONYX · Mine from your terminal">
+<meta property="og:description" content="SHA-256 proof-of-work from any CPU. One round a minute, halving every 30 days, 50M max supply.">
+<meta property="og:image" content="og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ONYX · Mine from your terminal">
+<meta name="twitter:description" content="SHA-256 proof-of-work from any CPU. One round a minute, halving every 30 days, 50M max supply.">
+<meta name="twitter:image" content="og.png">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -26,7 +37,11 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);-web
 #gl{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none;background:var(--ivory)}
 main{position:relative;z-index:2}
 
-.nav{position:fixed;z-index:10;top:calc(env(safe-area-inset-top,0px) + 16px);left:var(--pad);right:var(--pad);display:flex;justify-content:space-between;align-items:center;gap:1rem}
+/* live network bar */
+.bar{position:fixed;z-index:11;top:env(safe-area-inset-top,0px);left:0;right:0;height:30px;display:flex;align-items:center;gap:1.6rem;padding:0 var(--pad);border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--ivory) 78%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font:400 .64rem/1 var(--mono);letter-spacing:.04em;color:var(--muted);white-space:nowrap;overflow:hidden}
+.bar b{font-weight:500;color:var(--ink)}
+.bar .rev{margin-left:auto;color:var(--faint)}
+.nav{position:fixed;z-index:10;top:calc(env(safe-area-inset-top,0px) + 46px);left:var(--pad);right:var(--pad);display:flex;justify-content:space-between;align-items:center;gap:1rem}
 body::before{content:"";position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0px);z-index:11;background:var(--bg)}
 .brand{display:flex;align-items:center;gap:.6rem;color:var(--ink);text-decoration:none;font:500 .82rem/1 var(--mono);letter-spacing:.16em}
 /* logo: the ring image is used as a luminance mask, so it takes the ink colour of the page instead of a black box */
@@ -36,8 +51,29 @@ body::before{content:"";position:fixed;top:0;left:0;right:0;height:env(safe-area
 .links a:hover,.links a[aria-current="true"]{color:var(--ink)}
 .launch{display:inline-flex;align-items:center;gap:.5rem;padding:.65rem 1.1rem;border-radius:999px;background:var(--ink);color:var(--ivory);text-decoration:none;font-size:.76rem;font-weight:500}
 .launch:hover{background:#1a1619}
+.nav-r{display:flex;align-items:center;gap:.5rem}
+.menu-btn{display:none;appearance:none;border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:999px;padding:.6rem 1rem;font:500 .72rem/1 var(--mono);letter-spacing:.08em;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.num{color:var(--ink)}
 
-section{position:relative;min-height:100vh;min-height:100svh;padding:calc(env(safe-area-inset-top,0px) + 120px) var(--pad) calc(env(safe-area-inset-bottom,0px) + 70px);display:flex;flex-direction:column;justify-content:center}
+/* quick start in the hero */
+.quick{display:grid;gap:.5rem;margin-top:1.6rem;width:min(34rem,100%)}
+.qrow{display:grid;grid-template-columns:4.6rem 1fr auto;align-items:center;gap:.8rem;padding:.55rem .55rem .55rem 1rem;border:1px solid var(--line);border-radius:12px;background:color-mix(in srgb,var(--ivory) 62%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.qrow span{font:500 .62rem/1 var(--mono);letter-spacing:.14em;color:var(--muted)}
+.qrow code{font:400 .76rem/1.3 var(--mono);color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qrow code.soon{color:var(--faint)}
+.qrow button{appearance:none;border:1px solid var(--line);background:var(--ivory);color:var(--ink);border-radius:999px;padding:.38rem .8rem;font:500 .66rem var(--mono);cursor:pointer}
+.qrow button:disabled{opacity:.45;cursor:default}
+
+/* spec sheet */
+.spec{margin-top:2.2rem;width:min(34rem,100%);border:1px solid var(--line);border-radius:16px;overflow:hidden;background:color-mix(in srgb,var(--ivory) 66%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.spec header{display:flex;justify-content:space-between;padding:.85rem 1.2rem;border-bottom:1px solid var(--line);font:500 .64rem/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.spec dl{margin:0;display:grid;grid-template-columns:9.5rem 1fr}
+.spec dt,.spec dd{margin:0;padding:.72rem 1.2rem;border-bottom:1px solid var(--line);font-size:.84rem}
+.spec dt{font:400 .74rem/1.5 var(--mono);color:var(--muted)}
+.spec dd{color:var(--ink);font-variant-numeric:tabular-nums}
+.spec dt:nth-last-of-type(1),.spec dd:last-child{border-bottom:0}
+
+section{position:relative;min-height:100vh;min-height:100svh;padding:calc(env(safe-area-inset-top,0px) + 140px) var(--pad) calc(env(safe-area-inset-bottom,0px) + 70px);display:flex;flex-direction:column;justify-content:center}
 .label{font:500 .66rem/1 var(--mono);letter-spacing:.18em;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;gap:.7rem;margin:0 0 1.4rem}
 .label::before{content:"";width:22px;height:1px;background:var(--faint)}
 h1,h2{margin:0;font-weight:300;letter-spacing:-.045em}
@@ -54,7 +90,6 @@ h2{font-size:clamp(2.1rem,4.6vw,4.4rem);line-height:.98}
 
 /* hero */
 .k-hero{justify-content:flex-end}
-.k-hero .status{position:absolute;right:var(--pad);top:calc(env(safe-area-inset-top,0px) + 120px);display:grid;gap:.5rem;justify-items:end;font:400 .66rem/1.4 var(--mono);color:var(--muted)}
 .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--ok);margin-right:.5rem;box-shadow:0 0 0 0 var(--ok);animation:ping 2.2s ease-out infinite}
 @keyframes ping{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 60%,transparent)}80%,100%{box-shadow:0 0 0 8px transparent}}
 .k-hero .scroll{position:absolute;right:var(--pad);bottom:calc(env(safe-area-inset-bottom,0px) + 70px);font:500 .62rem/1 var(--mono);letter-spacing:.2em;color:var(--muted);display:flex;align-items:center;gap:.7rem}
@@ -154,7 +189,16 @@ input[type=range]{width:100%;accent-color:var(--ink)}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 @media (max-width:820px){
-  .links{display:none}
+  .links{display:none;position:absolute;top:calc(100% + 10px);left:0;right:0;flex-direction:column;gap:0;padding:.4rem 1.2rem;border-radius:16px;background:color-mix(in srgb,var(--ivory) 94%,transparent)}
+  .links li a{display:block;padding:.85rem 0;font-size:.9rem;border-bottom:1px solid var(--line)}
+  .links li:last-child a{border-bottom:0}
+  .nav.open .links{display:flex}
+  .menu-btn{display:inline-flex}
+  .bar .hide-m{display:none}
+  .k-hero .scroll{display:none}
+  .qrow{grid-template-columns:1fr auto}
+  .qrow span{grid-column:1 / -1}
+  .spec dl{grid-template-columns:7rem 1fr}
   .half{max-width:none}
   .right{align-items:flex-start;text-align:left}
   .right .lede{margin-left:0}
@@ -165,7 +209,6 @@ input[type=range]{width:100%;accent-color:var(--ink)}
   .tables{grid-template-columns:1fr}
   .cmd{grid-template-columns:1fr auto}
   .cmd span{grid-column:1 / -1}
-  .k-hero .status{display:none}
 }
 @media (prefers-reduced-motion:reduce){
   .rv{transition:opacity .3s;transform:none}
@@ -176,10 +219,18 @@ input[type=range]{width:100%;accent-color:var(--ink)}
 <body>
 <canvas id="gl" aria-hidden="true"></canvas>
 
-<nav class="nav" aria-label="Main">
+<div class="bar" role="status" aria-live="off">
+  <span><i class="dot"></i><b id="hs0">connecting…</b></span>
+  <span>hashrate <b id="hs1">—</b></span>
+  <span class="hide-m">round <b id="hs4">—</b></span>
+  <span><b id="hs2">—</b></span>
+  <span class="hide-m">emission <b id="hs3">—</b></span>
+  <span class="rev hide-m">ONYX/CLI rev 1.0</span>
+</div>
+<nav class="nav" aria-label="Main" id="nav">
   <a class="brand" href="#top"><i class="logo" aria-hidden="true"></i><span id="brandName"></span></a>
   <ul class="links" id="links"></ul>
-  <a class="launch" href="#access" id="launch"></a>
+  <div class="nav-r"><button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="links">MENU</button><a class="launch" href="#access" id="launch"></a></div>
 </nav>
 
 <main id="main"></main>
@@ -215,13 +266,18 @@ const CONFIG = {
     { id:"top", kind:"hero", pose:{ pos:[1.2, .22], scale:1, turb:.5, shape:"sphere", veil:1 },
       label:"SHA-256 · Proof-of-work",
       title:"Mine it<br>from orbit",
-      body:"ONYX is a coin you mine from your terminal. Connect a wallet, take your API key, and let your CPU hash. Every minute a fixed amount is split between that round's miners.",
-      status:["network —","hashrate —","round ends —"] },
-    { id:"economy", kind:"caps", side:"left", pose:{ pos:[1.55, 0], scale:.86, turb:.8, shape:"cube", veil:.35 },
+      body:"ONYX is a coin you mine from your terminal. Connect a wallet, take your API key, and let your CPU hash. Every minute a fixed amount is split between that round's miners." },
+    { id:"economy", kind:"specs", side:"left", pose:{ pos:[1.55, 0], scale:.86, turb:.8, shape:"cube", veil:.35 },
       label:"Economy", title:"Fixed supply,<br>fair rounds",
-      items:[["One round a minute","Each round releases the same amount of ONYX, split between its miners by the work they proved."],
-             ["Halving every 30 days","Emission halves on a schedule, so the total supply is capped at 50,000,000 ONYX."],
-             ["Any CPU","Difficulty tunes itself per miner to about one share every 20 seconds. More machines only compete for the same emission."]] },
+      body:"Every round releases the same amount of ONYX. Extra machines only compete for it, they cannot print more.",
+      rows:[["Algorithm","SHA-256 proof-of-work"],
+            ["Round","60 seconds"],
+            ["Emission","<span id=\"sp-emit\">578.7</span> ONYX / round"],
+            ["Max supply","50,000,000 ONYX"],
+            ["Halving","every 30 days"],
+            ["Difficulty","auto, about 1 share / 20 s per miner"],
+            ["Payout","split by work at the end of each round"],
+            ["Hardware","any CPU · Node.js 18+"]] },
     { id:"how", kind:"steps", side:"right", pose:{ pos:[-1.75, .5], scale:.82, turb:.35, shape:"torus", veil:.3 },
       label:"How it works", title:"Connect, install,<br>mine",
       steps:[["Connect","Sign in with your wallet. No password, no fee: the signature only proves the wallet is yours."],
@@ -247,7 +303,9 @@ const CONFIG = {
       label:"Start mining", title:"Put your CPU<br>to work",
       body:"Free, no password, just a wallet. Sign once to get your API key, then mine from any terminal." }
   ],
-  footer:{ left:"© ONYX LABS", links:[["Docs","#"],["X","#"],["GitHub","#"]] },
+  ca: "",                 // token contract address; empty shows "Coming soon"
+  // footer links: entries left as "#" are hidden until they point somewhere real
+  footer:{ left:"© ONYX", links:[["Download CLI","onyx-cli.tgz"],["X","#"],["Telegram","#"],["Docs","#"]] },
   // each tint: c1/c2/c3 flow across the core, edge colours the torn rims, ring colours the orbits
   tints:{
     onyx:    { label:"Onyx",     c1:"#6e676b", c2:"#f3f0e7", c3:"#2a2529", edge:"#f3f0e7", ring:"#2a2529" },
@@ -271,17 +329,25 @@ const clamp01 = v => Math.min(1, Math.max(0, v)), smooth = t => t*t*(3-2*t), ler
 $("brandName").textContent = CONFIG.brand;
 $("launch").textContent = CONFIG.launch;
 $("links").innerHTML = CONFIG.links.map(([t,h]) => `<li><a href="${h}">${t}</a></li>`).join("");
-const head = s => `<p class="label rv">${s.label}</p><h${s.kind === "hero" ? 1 : 2} class="rv" style="--d:1">${s.title}</h${s.kind === "hero" ? 1 : 2}>`;
-$("main").innerHTML = CONFIG.sections.map(s => {
+// every section label is numbered like a spec sheet: §01 · Economy
+const head = (s, i) => `<p class="label rv"><span class="num">§${String(i + 1).padStart(2, "0")}</span>${s.label}</p><h${s.kind === "hero" ? 1 : 2} class="rv" style="--d:1">${s.title}</h${s.kind === "hero" ? 1 : 2}>`;
+const INSTALL = "npm install -g " + location.origin + "/onyx-cli.tgz";
+$("main").innerHTML = CONFIG.sections.map((s, idx) => {
   let inner = "";
-  if (s.kind === "hero") inner = `<div class="half">${head(s)}<p class="lede rv" style="--d:2">${s.body}</p>
-      <div class="btns rv" style="--d:3"><a class="launch" href="#access">${CONFIG.launch}</a><a class="ghost" href="#how">See how it works</a></div></div>
-      <div class="status rv" style="--d:4">${s.status.map((t,i) => `<span>${i === 0 ? '<i class="dot"></i>' : ""}<span id="hs${i}">${t}</span></span>`).join("")}</div>
+  const head_ = x => head(x, idx);
+  if (s.kind === "hero") inner = `<div class="half">${head_(s)}<p class="lede rv" style="--d:2">${s.body}</p>
+      <div class="btns rv" style="--d:3"><a class="launch" href="#access">${CONFIG.launch}</a><a class="ghost" href="#how">See how it works</a></div>
+      <div class="quick rv" style="--d:4">
+        <div class="qrow"><span>INSTALL</span><code id="q-install"></code><button type="button" data-copy="q-install">Copy</button></div>
+        <div class="qrow"><span>CA</span>${CONFIG.ca ? `<code id="q-ca">${CONFIG.ca}</code><button type="button" data-copy="q-ca">Copy</button>` : `<code class="soon">Coming soon</code><button type="button" disabled>Copy</button>`}</div>
+      </div></div>
       <div class="scroll rv" style="--d:5">SCROLL<i></i></div>`;
-  if (s.kind === "caps") inner = `<div class="half">${head(s)}<ul class="caps">${s.items.map(([h,p],i) => `<li class="rv" style="--d:${i+2}"><b>0${i+1}</b><div><h3>${h}</h3><p>${p}</p></div></li>`).join("")}</ul></div>`;
-  if (s.kind === "steps") inner = `<div class="half">${head(s)}</div><div class="steps">${s.steps.map(([h,p],i) => `<div class="step rv" style="--d:${i+2}"><b>0${i+1} /</b><h3>${h}</h3><p>${p}</p></div>`).join("")}</div>`;
-  if (s.kind === "demo") inner = `<div class="half">${head(s)}</div><div class="term rv" style="--d:2"><header><i></i><i></i><i></i><span>onyx mine · simulated</span></header><pre id="log" aria-live="polite"></pre></div>`;
-  if (s.kind === "network") inner = `<div class="half">${head(s)}</div>
+  if (s.kind === "specs") inner = `<div class="half">${head_(s)}<p class="lede rv" style="--d:2">${s.body}</p>
+      <div class="spec rv" style="--d:3"><header><span>Specifications</span><span>Rev 1.0</span></header><dl>${s.rows.map(([k,v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl></div></div>`;
+  if (s.kind === "caps") inner = `<div class="half">${head_(s)}<ul class="caps">${s.items.map(([h,p],i) => `<li class="rv" style="--d:${i+2}"><b>0${i+1}</b><div><h3>${h}</h3><p>${p}</p></div></li>`).join("")}</ul></div>`;
+  if (s.kind === "steps") inner = `<div class="half">${head_(s)}</div><div class="steps">${s.steps.map(([h,p],i) => `<div class="step rv" style="--d:${i+2}"><b>0${i+1} /</b><h3>${h}</h3><p>${p}</p></div>`).join("")}</div>`;
+  if (s.kind === "demo") inner = `<div class="half">${head_(s)}</div><div class="term rv" style="--d:2"><header><i></i><i></i><i></i><span>onyx mine · simulated</span></header><pre id="log" aria-live="polite"></pre></div>`;
+  if (s.kind === "network") inner = `<div class="half">${head_(s)}</div>
       <div class="stats rv" style="--d:2">
         <div><b>Active miners</b><strong id="n-miners">—</strong><small>last 10 minutes</small></div>
         <div><b>Hashrate</b><strong id="n-rate">—</strong><small>estimated from shares</small></div>
@@ -292,7 +358,7 @@ $("main").innerHTML = CONFIG.sections.map(s => {
         <div class="tbl"><h3>Latest rounds</h3><table><thead><tr><th>Round</th><th>Ended</th><th>Miners</th><th>Shares</th><th>Paid out</th></tr></thead><tbody id="n-rounds"><tr><td colspan="5">Loading…</td></tr></tbody></table></div>
         <div class="tbl"><h3>Leaderboard</h3><table><thead><tr><th>#</th><th>Miner</th><th>Shares</th><th>Earned</th><th>Last active</th></tr></thead><tbody id="n-board"><tr><td colspan="5">Loading…</td></tr></tbody></table></div>
       </div>`;
-  if (s.kind === "access") inner = `${head(s)}<p class="lede rv" style="--d:2">${s.body}</p>
+  if (s.kind === "access") inner = `${head_(s)}<p class="lede rv" style="--d:2">${s.body}</p>
       <div class="btns rv" style="--d:3"><button class="launch" type="button" id="connect">${CONFIG.launch}</button></div>
       <div class="keybox" id="keybox" hidden>
         <p class="label">Your miner</p>
@@ -308,7 +374,15 @@ $("main").innerHTML = CONFIG.sections.map(s => {
   const cls = ["k-" + s.kind, s.side === "right" ? "right" : ""].join(" ");
   return `<section id="${s.id}" class="${cls}">${inner}</section>`;
 }).join("");
-$("footer").innerHTML = `<span>${CONFIG.footer.left} ${new Date().getFullYear()}</span><span>${CONFIG.footer.links.map(([t,h]) => `<a href="${h}">${t}</a>`).join("")}</span>`;
+$("footer").innerHTML = `<span>${CONFIG.footer.left} ${new Date().getFullYear()} · SHA-256 proof-of-work · rev 1.0</span><span>${CONFIG.footer.links.filter(([,h]) => h && h !== "#").map(([t,h]) => `<a href="${h}">${t}</a>`).join("")}</span>`;
+$("q-install").textContent = INSTALL;
+
+/* mobile menu */
+const nav = $("nav"), menuBtn = $("menuBtn");
+const setMenu = open => { nav.classList.toggle("open", open); menuBtn.setAttribute("aria-expanded", open); menuBtn.textContent = open ? "CLOSE" : "MENU"; };
+menuBtn.addEventListener("click", () => setMenu(!nav.classList.contains("open")));
+$("links").addEventListener("click", e => { if (e.target.closest("a")) setMenu(false); });
+addEventListener("keydown", e => { if (e.key === "Escape" && nav.classList.contains("open")) { setMenu(false); menuBtn.focus(); } });
 $("launch").addEventListener("click", e => { e.preventDefault(); $("access").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" }); setTimeout(connect, reduceMotion ? 0 : 600); });
 
 /* ---------- mining: live network stats ---------- */
@@ -327,8 +401,11 @@ async function refreshStats(){
     $("n-round").textContent = "#" + net.round;
     $("n-circ").textContent = fmtN(net.circulating);
     $("n-emit").textContent = fmtN(net.emissionPerRound, 1) + " / round · max " + fmtN(net.maxSupply);
-    $("hs0").textContent = net.activeMiners + (net.activeMiners === 1 ? " miner online" : " miners online");
-    $("hs1").textContent = "hashrate " + fmtRate(net.hashrate);
+    $("hs0").textContent = "Network online · " + net.activeMiners + (net.activeMiners === 1 ? " miner" : " miners");
+    $("hs1").textContent = fmtRate(net.hashrate);
+    $("hs3").textContent = fmtN(net.emissionPerRound, 1) + " / round";
+    $("hs4").textContent = "#" + net.round;
+    $("sp-emit").textContent = fmtN(net.emissionPerRound, 1);
     $("n-rounds").innerHTML = net.rounds.length ? net.rounds.map(r => `<tr><td>#${r.id}</td><td>${ago(r.ended)}</td><td>${r.miners}</td><td>${r.shares}</td><td>${fmtN(r.emission, 1)}</td></tr>`).join("") : `<tr><td colspan="5">No rounds mined yet</td></tr>`;
     $("n-board").innerHTML = net.leaderboard.length ? net.leaderboard.map((m, i) => `<tr><td>${i+1}</td><td title="${escH(m.address)}">${escH(short(m.address))}</td><td>${fmtN(m.shares)}</td><td>${fmtN(m.earned, 1)}</td><td>${ago(m.lastShare)}</td></tr>`).join("") : `<tr><td colspan="5">Be the first miner</td></tr>`;
   } catch (e) { $("hs0").textContent = "network offline"; }
@@ -666,7 +743,7 @@ function loop(now){
   const A = CONFIG.sections[i0].pose, B = CONFIG.sections[i0+1].pose;
   const vh = 2*camera.position.z*Math.tan(THREE.MathUtils.degToRad(camera.fov/2)), vw = vh*camera.aspect;
   let x = lerp(A.pos[0], B.pos[0], f), y = lerp(A.pos[1], B.pos[1], f), sc = lerp(A.scale, B.scale, f);
-  if (mobile) { x = 0; y = vh*.18; sc *= .72; }
+  if (mobile) { x = 0; y = vh*.27; sc *= .6; } // phones: keep the core above the headline
   else x = x*Math.min(1, vw/7);
   core.position.set(x, y, 0);
   core.scale.setScalar(sc*CONFIG.coreSize*(1 + Math.sin(Math.PI*f)*.06));
