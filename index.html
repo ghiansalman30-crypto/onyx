@@ -22,7 +22,7 @@
 *,*::before,*::after{box-sizing:inherit}
 html{background:var(--bg);scroll-padding-top:calc(env(safe-area-inset-top,0px) + 80px)}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
-#gl{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none;background:#cdc6bd url(bg.jpg) center/cover no-repeat}
+#gl{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none;background:#cdc6bd}
 main{position:relative;z-index:2}
 
 .nav{position:fixed;z-index:10;top:calc(env(safe-area-inset-top,0px) + 16px);left:var(--pad);right:var(--pad);display:flex;justify-content:space-between;align-items:center;gap:1rem}
@@ -286,7 +286,7 @@ function playLog(){
 /* ---------- three.js ---------- */
 const canvas = $("gl");
 const renderer = new THREE.WebGLRenderer({ canvas, antialias:false, alpha:true, powerPreference:"high-performance" });
-renderer.setClearColor(0x000000, 0); // transparent: the CSS background image shows through
+renderer.setClearColor(0x000000, 0); // the scene renders on transparent; the post pass paints the animated backdrop behind it
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(35, 1, .1, 60);
 camera.position.set(0, 0, 6.2);
@@ -473,6 +473,28 @@ const post = new THREE.ShaderMaterial({
   vertexShader:`varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0., 1.); }`,
   fragmentShader:`uniform sampler2D tDiffuse; uniform float uCA; uniform float uGrain; uniform float uTime; uniform vec2 uRes; varying vec2 vUv;
     float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233)))*43758.5453); }
+    float n2(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.-2.*f);
+      return mix(mix(h(i), h(i+vec2(1,0)), f.x), mix(h(i+vec2(0,1)), h(i+vec2(1,1)), f.x), f.y); }
+    // BACKGROUND: a soft blue-grey haze drifting over warm beige, with film grain.
+    // Two blurred blobs sit on the left (as in the reference), slowly breathing and wandering.
+    vec3 backdrop(vec2 uv){
+      // measured in units of the screen's short side, so blobs keep their size on phones and desktops
+      float mn = min(uRes.x, uRes.y), W = uRes.x/mn, H = uRes.y/mn, t = uTime*.06;
+      vec2 p = uv*vec2(W, H);
+      p += (vec2(n2(p*1.3 + t), n2(p*1.3 - t + 7.)) - .5)*.22;          // slow liquid warp of the whole field
+      vec3 col = mix(vec3(.80,.77,.73), vec3(.86,.82,.77), smoothstep(.0, 1., uv.x)); // beige, lighter to the right
+      vec2 c1 = vec2(.30*W + .06*sin(t*1.7), .70*H + .05*cos(t*1.3));
+      vec2 c2 = vec2(.26*W + .07*cos(t*1.2 + 1.), .27*H + .05*sin(t*1.5 + 2.));
+      float b1 = exp(-dot(p - c1, p - c1)/(.11 + .015*sin(t*2.1)));
+      float b2 = exp(-dot(p - c2, p - c2)/(.14 + .02*cos(t*1.8)));
+      float haze = exp(-pow(p.x - .15*W, 2.)/(.14*W*W))*.55;               // a wide cool veil down the left edge
+      col = mix(col, vec3(.62,.66,.68), haze);
+      col = mix(col, vec3(.44,.52,.59), b1*.72);
+      col = mix(col, vec3(.39,.48,.56), b2*.82);
+      // grain: fine, flickering a little like film
+      float g = h(floor(gl_FragCoord.xy) + floor(uTime*10.)*31.) - .5;
+      return col + g*.11*uGrain;
+    }
     void main(){
       vec2 d = vUv - .5; float r = length(d);
       vec2 off = d*(.006 + r*.02)*uCA;
@@ -481,7 +503,7 @@ const post = new THREE.ShaderMaterial({
       c = min(c, vec3(a));
       c += (h(vUv*uRes + fract(uTime*7.)*100.) - .5)*.07*uGrain*a;
       c *= 1. - smoothstep(.45, 1.05, r)*.65;
-      gl_FragColor = vec4(max(c, 0.), a);
+      gl_FragColor = vec4(max(c, 0.) + backdrop(vUv)*(1. - a), 1.);
     }`,
   depthTest:false, depthWrite:false
 });
