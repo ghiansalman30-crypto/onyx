@@ -28,7 +28,8 @@ main{position:relative;z-index:2}
 .nav{position:fixed;z-index:10;top:calc(env(safe-area-inset-top,0px) + 16px);left:var(--pad);right:var(--pad);display:flex;justify-content:space-between;align-items:center;gap:1rem}
 body::before{content:"";position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0px);z-index:11;background:var(--bg)}
 .brand{display:flex;align-items:center;gap:.6rem;color:var(--ink);text-decoration:none;font:500 .82rem/1 var(--mono);letter-spacing:.16em}
-.brand img{width:28px;height:28px;border-radius:50%;object-fit:cover;object-position:50% 48%;display:block;background:#000}
+/* logo: the ring image is used as a luminance mask, so it takes the ink colour of the page instead of a black box */
+.brand .logo{width:30px;height:30px;display:block;background:var(--ink);-webkit-mask:url(logo.jpg) 50% 48%/cover no-repeat;mask:url(logo.jpg) 50% 48%/cover no-repeat luminance}
 .links{display:flex;gap:clamp(1rem,2.6vw,2.4rem);margin:0;padding:.7rem 1.2rem;list-style:none;border:1px solid var(--line);border-radius:999px;background:var(--chip);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .links a{color:var(--muted);text-decoration:none;font-size:.76rem}
 .links a:hover,.links a[aria-current="true"]{color:var(--ink)}
@@ -143,7 +144,7 @@ input[type=range]{width:100%;accent-color:var(--ink)}
 <canvas id="gl" aria-hidden="true"></canvas>
 
 <nav class="nav" aria-label="Main">
-  <a class="brand" href="#top"><img src="logo.jpg" alt="" width="28" height="28"><span id="brandName"></span></a>
+  <a class="brand" href="#top"><i class="logo" aria-hidden="true"></i><span id="brandName"></span></a>
   <ul class="links" id="links"></ul>
   <a class="launch" href="#access" id="launch"></a>
 </nav>
