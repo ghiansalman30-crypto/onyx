@@ -57,7 +57,7 @@
   "tune.rings": "Anillos orbitales", "tune.speed": "Movimiento", "tune.morph": "Forma", "tune.withScroll": "Con el scroll", "tune.auto": "Ciclo automático",
   "tune.liquid": "Superficie líquida", "tune.reset": "Restablecer",
   "js.online": "Red en línea · {n} mineros", "js.offline": "red sin conexión", "js.roundEnds": "la ronda termina en {s}s",
-  "js.endsIn": "termina en {s}s", "js.perRound": "/ ronda", "js.max": "máx.", "js.noRounds": "Aún no hay rondas minadas",
+  "js.endsIn": "termina en {s}s", "js.perRound": "/ ronda", "js.max": "máx.", "js.noRounds": "Aún no hay rondas minadas", "js.waitShares": "Esperando el primer share",
   "js.first": "Sé el primer minero", "js.secAgo": "hace {n}s", "js.minAgo": "hace {n} min", "js.hAgo": "hace {n} h", "js.you": "tú",
   "js.shares": "{n} shares", "js.signAgain": "Iniciar sesión de nuevo (nueva key)", "js.copied": "Copiado", "js.menu": "MENÚ", "js.close": "CERRAR",
   "js.noWallet": "No se encontró ninguna wallet. Instala MetaMask, OKX Wallet o Rabby y vuelve a intentarlo.",

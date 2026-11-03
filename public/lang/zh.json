@@ -57,7 +57,7 @@
   "tune.rings": "轨道环", "tune.speed": "动态", "tune.morph": "形变", "tune.withScroll": "随滚动", "tune.auto": "自动循环",
   "tune.liquid": "液态表面", "tune.reset": "恢复默认",
   "js.online": "网络在线 · {n} 位矿工", "js.offline": "网络离线", "js.roundEnds": "本轮 {s} 秒后结束",
-  "js.endsIn": "{s} 秒后结束", "js.perRound": "/ 轮", "js.max": "上限", "js.noRounds": "还没有挖出的轮次",
+  "js.endsIn": "{s} 秒后结束", "js.perRound": "/ 轮", "js.max": "上限", "js.noRounds": "还没有挖出的轮次", "js.waitShares": "等待第一个份额",
   "js.first": "成为第一位矿工", "js.secAgo": "{n} 秒前", "js.minAgo": "{n} 分钟前", "js.hAgo": "{n} 小时前", "js.you": "你",
   "js.shares": "{n} 个 share", "js.signAgain": "重新登录（新 key）", "js.copied": "已复制", "js.menu": "菜单", "js.close": "关闭",
   "js.noWallet": "未检测到钱包。请安装 MetaMask、OKX Wallet 或 Rabby 后重试。",

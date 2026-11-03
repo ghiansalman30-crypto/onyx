@@ -57,7 +57,7 @@
   "tune.rings": "Орбиты", "tune.speed": "Движение", "tune.morph": "Форма", "tune.withScroll": "При прокрутке", "tune.auto": "Автоцикл",
   "tune.liquid": "Жидкая поверхность", "tune.reset": "Сбросить",
   "js.online": "Сеть онлайн · майнеров: {n}", "js.offline": "сеть офлайн", "js.roundEnds": "раунд закончится через {s} с",
-  "js.endsIn": "закончится через {s} с", "js.perRound": "/ раунд", "js.max": "макс.", "js.noRounds": "Раундов пока нет",
+  "js.endsIn": "закончится через {s} с", "js.perRound": "/ раунд", "js.max": "макс.", "js.noRounds": "Раундов пока нет", "js.waitShares": "Ждём первую шару",
   "js.first": "Стань первым майнером", "js.secAgo": "{n} с назад", "js.minAgo": "{n} мин назад", "js.hAgo": "{n} ч назад", "js.you": "ты",
   "js.shares": "шар: {n}", "js.signAgain": "Войти снова (новый ключ)", "js.copied": "Скопировано", "js.menu": "МЕНЮ", "js.close": "ЗАКРЫТЬ",
   "js.noWallet": "Кошелёк не найден. Установи MetaMask, OKX Wallet или Rabby и попробуй снова.",

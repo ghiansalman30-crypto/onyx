@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ONYX · Mine from your terminal</title>
 <meta name="description" content="ONYX is a coin you mine from your terminal with SHA-256 proof-of-work. Connect a wallet, get an API key, run onyx mine.">
-<meta name="theme-color" content="#f3f0e7">
+<meta name="theme-color" content="#000000">
 <meta property="og:type" content="website">
 <meta property="og:title" content="ONYX · Mine from your terminal">
 <meta property="og:description" content="SHA-256 proof-of-work from any CPU. One round a minute, halving every 30 days, 50M max supply.">
@@ -21,12 +21,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  /* palette: Charcoal #2A2529 + Pale Ivory #F3F0E7 */
-  --bg:#f3f0e7; --ivory:#f3f0e7; --ink:#2a2529; --muted:#554e52; --faint:#a39d9b; --line:rgba(42,37,41,.14); --chip:rgba(243,240,231,.62);
-  --tint:#2a2529; --ok:#2a2529;
+  /* palette (moon): Black #000000, Cool Gray 1 #E2E2E2, Full Moon #919095, Charcoal Gray #6A6A6A, Moon Rock #948D83, Moon Mist #80817C.
+     --ivory is the dark glass surface, --ink the light text on it */
+  --bg:#000000; --ivory:#0b0b0c; --ink:#e2e2e2; --muted:#919095; --faint:#6a6a6a; --line:rgba(226,226,226,.13); --chip:rgba(14,14,15,.6);
+  --tint:#948d83; --ok:#948d83;
   --pad:clamp(18px,3.4vw,48px);
   --sans:Geist,"Helvetica Neue",Arial,sans-serif; --mono:"Geist Mono",ui-monospace,Menlo,monospace;
-  color-scheme:light; box-sizing:border-box;
+  color-scheme:dark; box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){ color-scheme:dark; } }
@@ -50,7 +51,7 @@ body::before{content:"";position:fixed;top:0;left:0;right:0;height:env(safe-area
 .links a{color:var(--muted);text-decoration:none;font-size:.76rem}
 .links a:hover,.links a[aria-current="true"]{color:var(--ink)}
 .launch{display:inline-flex;align-items:center;gap:.5rem;padding:.65rem 1.1rem;border-radius:999px;background:var(--ink);color:var(--ivory);text-decoration:none;font-size:.76rem;font-weight:500}
-.launch:hover{background:#1a1619}
+.launch:hover{background:#ffffff}
 .nav-r{display:flex;align-items:center;gap:.5rem}
 .menu-btn{display:none;appearance:none;border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:999px;padding:.6rem 1rem;font:500 .72rem/1 var(--mono);letter-spacing:.08em;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .num{color:var(--ink)}
@@ -133,6 +134,8 @@ h2{font-size:clamp(2.1rem,4.6vw,4.4rem);line-height:.98}
 
 /* access */
 .k-access{align-items:center;text-align:center}
+.k-access h2,.k-access p,.k-access .label{text-shadow:0 0 24px #000,0 0 10px #000,0 1px 3px #000}
+.k-access>*{position:relative;z-index:1}.k-access::before{content:"";position:absolute;left:50%;top:50%;width:min(46rem,96vw);height:24rem;transform:translate(-50%,-50%);background:radial-gradient(closest-side,rgba(0,0,0,.78),rgba(0,0,0,.45) 60%,transparent);pointer-events:none}
 .k-access .lede{margin-left:auto;margin-right:auto}
 .form{display:flex;gap:.5rem;margin-top:2rem;padding:.35rem;border:1px solid var(--line);border-radius:999px;background:var(--chip);width:min(28rem,100%)}
 .form input{flex:1;min-width:0;background:none;border:0;color:var(--ink);font:400 .86rem var(--sans);padding:.6rem .9rem;outline:none}
@@ -218,14 +221,14 @@ footer a{color:var(--muted);text-decoration:none;margin-left:1.2rem}
 
 /* tune */
 .tune-btn{position:fixed;left:var(--pad);bottom:calc(env(safe-area-inset-bottom,0px) + 18px);z-index:12;appearance:none;border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:999px;padding:.55rem 1rem;font:500 .7rem/1 var(--mono);letter-spacing:.08em;cursor:pointer;backdrop-filter:blur(8px)}
-.tune{position:fixed;left:var(--pad);bottom:calc(env(safe-area-inset-bottom,0px) + 62px);z-index:12;width:min(300px,calc(100vw - 2*var(--pad)));padding:1.1rem;border-radius:16px;background:rgba(243,240,231,.92);border:1px solid var(--line);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);font-size:.76rem}
+.tune{position:fixed;left:var(--pad);bottom:calc(env(safe-area-inset-bottom,0px) + 62px);z-index:12;width:min(300px,calc(100vw - 2*var(--pad)));padding:1.1rem;border-radius:16px;background:rgba(11,11,12,.92);border:1px solid var(--line);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);font-size:.76rem}
 .tune[hidden]{display:none}
 .tune h2{margin:0 0 .9rem;font-size:.95rem;font-weight:500;letter-spacing:0}
 .row{margin:0 0 .9rem;border:0;padding:0}
 .row legend,.row .lbl{display:flex;justify-content:space-between;width:100%;margin-bottom:.45rem;color:var(--muted)}
 .sw{display:flex;gap:.5rem}
 .sw input{position:absolute;opacity:0;pointer-events:none}
-.sw label{width:26px;height:26px;border-radius:50%;cursor:pointer;background:var(--g);box-shadow:inset 0 0 0 2px rgba(42,37,41,.18);display:block}
+.sw label{width:26px;height:26px;border-radius:50%;cursor:pointer;background:var(--g);box-shadow:inset 0 0 0 2px rgba(226,226,226,.25);display:block}
 .sw input:checked + label{outline:2px solid var(--ink);outline-offset:2px}
 .sw input:focus-visible + label{outline:2px dashed var(--ink);outline-offset:3px}
 input[type=range]{width:100%;accent-color:var(--ink)}
@@ -238,6 +241,12 @@ input[type=range]{width:100%;accent-color:var(--ink)}
 :focus-visible{outline:1px solid var(--ink);outline-offset:3px}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
+main section :is(h1,h2,.label,.lede,p){text-shadow:0 0 22px rgba(0,0,0,.9),0 0 8px rgba(0,0,0,.8),0 1px 2px rgba(0,0,0,.9)}
+.nav::before{content:"";position:fixed;left:0;right:0;top:0;height:calc(env(safe-area-inset-top,0px) + 118px);background:linear-gradient(#000 0,rgba(0,0,0,.88) 55%,rgba(0,0,0,0));z-index:-1;pointer-events:none;opacity:0;transition:opacity .35s ease}
+html.scrolled .nav::before{opacity:1}
+footer .tune-btn{position:static;display:inline-block;padding:.35rem .75rem;font-size:.6rem;line-height:1;margin-left:1.2rem;vertical-align:middle;white-space:nowrap}
+.tbl td.empty{color:var(--muted);text-align:center;padding:1.6rem 1rem;font-style:normal}
+.chart.wide{position:relative}.chart .wait{position:absolute;left:0;right:0;top:50%;margin:0;text-align:center;color:var(--muted);font:400 .68rem var(--mono);letter-spacing:.12em;text-transform:uppercase;pointer-events:none}
 @media (max-width:820px){
   .links{display:none;position:absolute;top:calc(100% + 10px);left:0;right:0;flex-direction:column;gap:0;padding:.4rem 1.2rem;border-radius:16px;background:color-mix(in srgb,var(--ivory) 94%,transparent)}
   .links li a{display:block;padding:.85rem 0;font-size:.9rem;border-bottom:1px solid var(--line)}
@@ -272,7 +281,7 @@ input[type=range]{width:100%;accent-color:var(--ink)}
 
 <div class="bar" role="status" aria-live="off">
   <span><i class="dot"></i><b id="hs0" data-i18n="bar.connecting">connecting…</b></span>
-  <span><span data-i18n="bar.hashrate">hashrate</span> <b id="hs1">—</b></span>
+  <span class="hide-m"><span data-i18n="bar.hashrate">hashrate</span> <b id="hs1">—</b></span>
   <span class="hide-m"><span data-i18n="bar.round">round</span> <b id="hs4">—</b></span>
   <span><b id="hs2">—</b></span>
   <span class="hide-m"><span data-i18n="bar.emission">emission</span> <b id="hs3">—</b></span>
@@ -361,7 +370,7 @@ const CONFIG = {
              ["Can I mine from my phone?","Not yet. Mining runs in a terminal on a desktop or laptop (Windows, macOS or Linux). You can still connect your wallet and follow your balance from your phone."],
              ["What if the server goes down?","Mining pauses until it is back and the CLI keeps retrying on its own. The ledger is backed up every hour, and every round is public: click a round in the Network table to see who was paid what."],
              ["I lost my API key.","Connect the same wallet again to get a new key. The old key stops working, your balance stays with the wallet."]] },
-    { id:"access", kind:"access", pose:{ pos:[0, .45], scale:1.12, turb:1.6, shape:"spindle", veil:.55 },
+    { id:"access", kind:"access", pose:{ pos:[0, .45], scale:1.12, turb:1.6, shape:"spindle", veil:.3 },
       label:"Start mining", title:"Put your CPU<br>to work",
       body:"Free, no password, just a wallet. Sign once to get your API key, then mine from any terminal." }
   ],
@@ -370,15 +379,15 @@ const CONFIG = {
   footer:{ left:"© ONYX", links:[["Download CLI","onyx-cli.tgz"],["X","#"],["Telegram","#"],["Docs","#"]] },
   // each tint: c1/c2/c3 flow across the core, edge colours the torn rims, ring colours the orbits
   tints:{
-    onyx:    { label:"Onyx",     c1:"#6e676b", c2:"#f3f0e7", c3:"#2a2529", edge:"#f3f0e7", ring:"#2a2529" },
-    charcoal:{ label:"Charcoal", c1:"#4a4347", c2:"#8a8386", c3:"#2a2529", edge:"#f3f0e7", ring:"#2a2529" },
-    ivory:   { label:"Ivory",    c1:"#f3f0e7", c2:"#cfc9bd", c3:"#faf8f2", edge:"#f3f0e7", ring:"#554e52" }
+    moon:    { label:"Full Moon",  c1:"#919095", c2:"#e2e2e2", c3:"#6a6a6a", edge:"#e2e2e2", ring:"#919095" },
+    rock:    { label:"Moon Rock",  c1:"#948d83", c2:"#c9c3b8", c3:"#6a6a6a", edge:"#e2e2e2", ring:"#948d83" },
+    mist:    { label:"Moon Mist",  c1:"#80817c", c2:"#e2e2e2", c3:"#919095", edge:"#ffffff", ring:"#80817c" }
   },
-  defaults:{ tint:"onyx", shards:40, chroma:.15, grain:1, rings:8, speed:1, morph:"scroll", liquid:.7 }
+  defaults:{ tint:"moon", shards:40, chroma:0, grain:1, rings:8, speed:1, morph:"scroll", liquid:.7 }
 };
 
 /* ---------- settings ---------- */
-const STORE = "onyx-tune-v7";
+const STORE = "onyx-tune-v8";
 const load = () => { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch (e) { return {}; } };
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify(settings)); } catch (e) {} };
 let settings = Object.assign({}, CONFIG.defaults, load());
@@ -451,7 +460,7 @@ const LANGS = { id: {
   "tune.liquid": "Permukaan cair", "tune.reset": "Kembalikan default",
   // text written by script
   "js.online": "Jaringan online · {n} miner", "js.offline": "jaringan offline", "js.roundEnds": "ronde selesai {s}dtk",
-  "js.endsIn": "selesai dalam {s}dtk", "js.perRound": "/ ronde", "js.max": "maks", "js.noRounds": "Belum ada ronde yang ditambang",
+  "js.endsIn": "selesai dalam {s}dtk", "js.perRound": "/ ronde", "js.max": "maks", "js.noRounds": "Belum ada ronde yang ditambang", "js.waitShares": "Menunggu share pertama",
   "js.first": "Jadilah miner pertama", "js.secAgo": "{n}dtk lalu", "js.minAgo": "{n}mnt lalu", "js.hAgo": "{n}jam lalu", "js.you": "kamu",
   "js.shares": "{n} share", "js.signAgain": "Masuk lagi (key baru)", "js.copied": "Tersalin", "js.menu": "MENU", "js.close": "TUTUP",
   "js.noWallet": "Wallet tidak ditemukan. Install MetaMask, OKX Wallet, atau Rabby, lalu coba lagi.",
@@ -578,7 +587,9 @@ $("launch").addEventListener("click", e => { e.preventDefault(); $("access").scr
 const fmtN = (n, d = 0) => Number(n).toLocaleString("en-US", { maximumFractionDigits: d });
 const fmtRate = h => h >= 1e9 ? fmtN(h/1e9, 2) + " GH/s" : h >= 1e6 ? fmtN(h/1e6, 2) + " MH/s" : h >= 1e3 ? fmtN(h/1e3, 1) + " kH/s" : fmtN(h) + " H/s";
 const short = a => a.slice(0, 6) + "…" + a.slice(-4);
-const ago = t => { if (!t) return "—"; const s = Math.max(0, Math.round((Date.now() - t)/1000)); return s < 60 ? t("js.secAgo", "{n}s ago", { n: s }) : s < 3600 ? t("js.minAgo", "{n}m ago", { n: Math.round(s/60) }) : t("js.hAgo", "{n}h ago", { n: Math.round(s/3600) }); };
+const one = () => (document.documentElement.lang || "en").startsWith("en"); // English singular for a count of 1
+const openRounds = new Map(); // round id -> payout row html, so open rows survive the stats refresh
+const ago = ts => { if (!ts) return "—"; const s = Math.max(0, Math.round((Date.now() - ts)/1000)); return s < 60 ? t("js.secAgo", "{n}s ago", { n: s }) : s < 3600 ? t("js.minAgo", "{n}m ago", { n: Math.round(s/60) }) : t("js.hAgo", "{n}h ago", { n: Math.round(s/3600) }); };
 const escH = t => String(t).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" })[c]);
 let net = null, skew = 0;
 // numbers glide to their new value instead of jumping (instant with reduced motion)
@@ -595,20 +606,22 @@ async function refreshStats(){
     net = await r.json(); skew = net.serverTime - Date.now();
     countTo($("n-miners"), net.activeMiners, v => fmtN(v));
     countTo($("n-rate"), net.hashrate, fmtRate);
-    $("n-round").textContent = "#" + net.round;
+    $("n-round").textContent = rno(net.round);
     countTo($("n-circ"), net.circulating, v => fmtN(v));
     $("n-emit").textContent = fmtN(net.emissionPerRound, 1) + " " + t("js.perRound", "/ round") + " · " + t("js.max", "max") + " " + fmtN(net.maxSupply);
     $("hs0").textContent = t("js.online", "Network online · {n} " + (net.activeMiners === 1 ? "miner" : "miners"), { n: net.activeMiners });
     $("hs1").textContent = fmtRate(net.hashrate);
     $("hs3").textContent = fmtN(net.emissionPerRound, 1) + " " + t("js.perRound", "/ round");
-    $("hs4").textContent = "#" + net.round;
+    $("hs4").textContent = rno(net.round);
     $("sp-emit").textContent = fmtN(net.emissionPerRound, 1);
-    $("n-rounds").innerHTML = net.rounds.length ? net.rounds.map(r => `<tr class="click" data-round="${r.id}" tabindex="0" title="Show payouts"><td>#${r.id}</td><td>${ago(r.ended)}</td><td>${r.miners}</td><td>${r.shares}</td><td>${fmtN(r.emission, 1)}</td></tr>`).join("") : `<tr><td colspan="5">${t("js.noRounds", "No rounds mined yet")}</td></tr>`;
-    $("n-board").innerHTML = net.leaderboard.length ? net.leaderboard.map((m, i) => { const me = myAddr && m.address === myAddr; return `<tr${me ? ' class="me"' : ""}><td>${i+1}</td><td title="${escH(m.address)}">${escH(short(m.address))}${me ? " <em>" + t("js.you", "you") + "</em>" : ""}</td><td>${fmtN(m.shares)}</td><td>${fmtN(m.earned, 1)}</td><td>${ago(m.lastShare)}</td></tr>`; }).join("") : `<tr><td colspan="5">${t("js.first", "Be the first miner")}</td></tr>`;
+    $("n-rounds").innerHTML = net.rounds.length ? net.rounds.map(r => `<tr class="click" data-round="${r.id}" tabindex="0" title="Show payouts"><td>${rno(r.id)}</td><td>${ago(r.ended)}</td><td>${r.miners}</td><td>${r.shares}</td><td>${fmtN(r.emission, 1)}</td></tr>`).join("") : `<tr><td colspan="5" class="empty">${t("js.noRounds", "No rounds mined yet")}</td></tr>`;
+    for (const [id, html] of openRounds) { const row = document.querySelector(`#n-rounds tr[data-round="${id}"]`); if (row) row.insertAdjacentHTML("afterend", html); else openRounds.delete(id); }
+    $("n-board").innerHTML = net.leaderboard.length ? net.leaderboard.map((m, i) => { const me = myAddr && m.address === myAddr; return `<tr${me ? ' class="me"' : ""}><td>${i+1}</td><td title="${escH(m.address)}">${escH(short(m.address))}${me ? " <em>" + t("js.you", "you") + "</em>" : ""}</td><td>${fmtN(m.shares)}</td><td>${fmtN(m.earned, 1)}</td><td>${ago(m.lastShare)}</td></tr>`; }).join("") : `<tr><td colspan="5" class="empty">${t("js.first", "Be the first miner")}</td></tr>`;
     drawHistory(net.history || [], net.round);
   } catch (e) { $("hs0").textContent = t("js.offline", "network offline"); }
 }
 // activity chart: one bar per round of the last hour (empty rounds stay as a faint tick)
+const rno = id => "#" + fmtN(Math.max(1, id - ((net && net.firstRound) || 0) + 1));
 function drawHistory(hist, round){
   const by = new Map(hist.map(h => [h.id, h])), n = 60, W = 600, H = 90, bw = W/n;
   const max = Math.max(1, ...hist.map(h => h.shares));
@@ -616,10 +629,12 @@ function drawHistory(hist, round){
   for (let i = 0; i < n; i++) {
     const r = by.get(round - n + i), v = r ? r.shares : 0; total += v;
     const h = v ? Math.max(3, (H - 6)*v/max) : 1.5;
-    bars += `<rect x="${(i*bw + 1).toFixed(1)}" y="${(H - h).toFixed(1)}" width="${(bw - 2).toFixed(1)}" height="${h.toFixed(1)}" class="${v ? "b" : "e"}"><title>Round #${round - n + i}: ${v} shares${r ? ", " + r.miners + " miners" : ""}</title></rect>`;
+    bars += `<rect x="${(i*bw + 1).toFixed(1)}" y="${(H - h).toFixed(1)}" width="${(bw - 2).toFixed(1)}" height="${h.toFixed(1)}" class="${v ? "b" : "e"}"><title>Round ${rno(round - n + i)}: ${v} shares${r ? ", " + r.miners + " miners" : ""}</title></rect>`;
   }
   $("n-hist").innerHTML = bars;
-  $("n-hist-sum").textContent = t("js.shares", "{n} shares", { n: fmtN(total) });
+  const fig = $("n-hist").parentNode; let w = fig.querySelector(".wait"); if (!w) { w = document.createElement("p"); w.className = "wait"; fig.appendChild(w); }
+  w.textContent = t("js.waitShares", "Waiting for the first share"); w.hidden = total > 0;
+  $("n-hist-sum").textContent = (total === 1 && one() ? "1 share" : t("js.shares", "{n} shares", { n: fmtN(total) }));
 }
 setInterval(() => {
   if (!net) return;
@@ -677,11 +692,11 @@ async function signIn(provider){
   try {
     note.textContent = t("js.waiting", "Waiting for your wallet…");
     const [address] = await provider.request({ method: "eth_requestAccounts" });
-    const { message } = await (await fetch("/api/auth/nonce?address=" + address)).json();
+    const { message, nonce } = await (await fetch("/api/auth/nonce?address=" + address)).json();
     note.textContent = t("js.signMsg", "Sign the message in your wallet. It is free and moves no funds.");
     const hex = "0x" + [...new TextEncoder().encode(message)].map(b => b.toString(16).padStart(2, "0")).join("");
     const signature = await provider.request({ method: "personal_sign", params: [hex, address] });
-    const r = await fetch("/api/auth/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ address, signature }) });
+    const r = await fetch("/api/auth/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ address, signature, nonce }) });
     const j = await r.json();
     if (!r.ok) throw new Error(j.error || "sign-in failed");
     try { localStorage.setItem(MINER, JSON.stringify({ address: j.address, apiKey: j.apiKey })); } catch (e) {}
@@ -721,11 +736,11 @@ $("k-confirm").addEventListener("click", async () => {
     const accounts = await provider.request({ method: "eth_requestAccounts" });
     const address = accounts.find(a => a.toLowerCase() === myAddr);
     if (!address) { note.textContent = t("js.wrongWallet", "Switch to wallet {a} in your wallet app, then try again.", { a: short(myAddr) }); return; }
-    const { message } = await (await fetch("/api/auth/nonce?address=" + address)).json();
+    const { message, nonce } = await (await fetch("/api/auth/nonce?address=" + address)).json();
     note.textContent = t("js.signMsg", "Sign the message in your wallet. It is free and moves no funds.");
     const hex = "0x" + [...new TextEncoder().encode(message)].map(b => b.toString(16).padStart(2, "0")).join("");
     const signature = await provider.request({ method: "personal_sign", params: [hex, address] });
-    const r = await fetch("/api/check", { method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + myKey }, body: JSON.stringify({ signature }) });
+    const r = await fetch("/api/check", { method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + myKey }, body: JSON.stringify({ signature, nonce }) });
     const j = await r.json();
     if (!r.ok) throw new Error(j.error || "check failed");
     checkDueAt = j.checkDueAt; renderCheck(); note.textContent = t("js.checkOk", "Confirmed. Mining continues.");
@@ -735,12 +750,13 @@ $("k-confirm").addEventListener("click", async () => {
 /* ---------- public ledger: click a round to see every payout ---------- */
 async function toggleRound(tr){
   const next = tr.nextElementSibling;
-  if (next && next.classList.contains("detail")) { next.remove(); return; }
+  if (next && next.classList.contains("detail")) { next.remove(); openRounds.delete(tr.dataset.round); return; }
   try {
     const r = await (await fetch("/api/round?id=" + tr.dataset.round)).json();
     if (!r.payouts) return;
-    const rows = r.payouts.map(p => `<span title="${escH(p.address)}">${escH(short(p.address))}${myAddr && p.address === myAddr ? " · " + t("js.you", "you") : ""}</span><span>${fmtN(p.shares)} ${t("ui.sharesWord", "shares")}</span><span>${fmtN(p.paid, 2)} ONYX</span>`).join("");
-    tr.insertAdjacentHTML("afterend", `<tr class="detail"><td colspan="5"><div class="payouts"><b>${t("js.payouts", "Payouts for round #{id}", { id: r.id })}</b>${rows}</div></td></tr>`);
+    const rows = r.payouts.map(p => `<span title="${escH(p.address)}">${escH(short(p.address))}${myAddr && p.address === myAddr ? " · " + t("js.you", "you") : ""}</span><span>${fmtN(p.shares)} ${p.shares === 1 && one() ? "share" : t("ui.sharesWord", "shares")}</span><span>${fmtN(p.paid, 2)} ONYX</span>`).join("");
+    const html = `<tr class="detail"><td colspan="5"><div class="payouts"><b>${t("js.payouts", "Payouts for round #{id}", { id: rno(r.id).slice(1) })}</b>${rows}</div></td></tr>`;
+    openRounds.set(tr.dataset.round, html); tr.insertAdjacentHTML("afterend", html);
   } catch (e) {}
 }
 $("n-rounds").addEventListener("click", e => { const tr = e.target.closest("tr.click"); if (tr) toggleRound(tr); });
@@ -832,8 +848,8 @@ const sphere = new THREE.Mesh(new THREE.SphereGeometry(1, 160, 120), new THREE.S
       gl_Position = projectionMatrix*mv;
     }`,
   fragmentShader: PAL + `uniform float uTime; uniform vec3 uEdge; varying vec3 vV; varying vec3 vP;
-    float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233)))*43758.5453); }
-    float h3(vec3 p){ return fract(sin(dot(p, vec3(127.1,311.7,74.7)))*43758.5453); }
+    float h(vec2 p){ vec3 q = fract(vec3(p.xyx)*.1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y)*q.z); }
+    float h3(vec3 p){ p = fract(p*.1031); p += dot(p, p.zyx + 31.32); return fract((p.x + p.y)*p.z); }
     void main(){
       vec3 V = normalize(vV);
       vec3 N = normalize(cross(dFdx(-vV), dFdy(-vV)));   // true normal of the morphed surface
@@ -871,7 +887,7 @@ const shardMat = new THREE.ShaderMaterial({
       gl_Position = projectionMatrix*mv;
     }`,
   fragmentShader: PAL + `uniform float uTime; uniform float uVeil; uniform vec3 uEdge; varying vec2 vUv; varying float vSeed; varying vec3 vN; varying vec3 vV;
-    float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233)))*43758.5453); }
+    float h(vec2 p){ vec3 q = fract(vec3(p.xyx)*.1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y)*q.z); }
     float n2(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.-2.*f);
       return mix(mix(h(i), h(i+vec2(1,0)), f.x), mix(h(i+vec2(0,1)), h(i+vec2(1,1)), f.x), f.y); }
     void main(){
@@ -965,31 +981,78 @@ function buildRings(n){
 /* ---------- post: chromatic split, grain, vignette ---------- */
 const rt = new THREE.WebGLRenderTarget(2, 2, { minFilter:THREE.LinearFilter, magFilter:THREE.LinearFilter });
 const post = new THREE.ShaderMaterial({
-  uniforms:{ tDiffuse:{value:rt.texture}, uCA:{value:1}, uGrain:{value:1}, uTime:U.uTime, uRes:{value:new THREE.Vector2(1,1)} },
+  uniforms:{ tDiffuse:{value:rt.texture}, uScene:{value:1}, uCA:{value:1}, uGrain:{value:1}, uTime:U.uTime, uRes:{value:new THREE.Vector2(1,1)} },
   vertexShader:`varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0., 1.); }`,
-  fragmentShader:`uniform sampler2D tDiffuse; uniform float uCA; uniform float uGrain; uniform float uTime; uniform vec2 uRes; varying vec2 vUv;
-    float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233)))*43758.5453); }
+  fragmentShader:`uniform sampler2D tDiffuse; uniform float uScene; uniform float uCA; uniform float uGrain; uniform float uTime; uniform vec2 uRes; varying vec2 vUv;
+    float h(vec2 p){ vec3 q = fract(vec3(p.xyx)*.1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y)*q.z); }
     float n2(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.-2.*f);
       return mix(mix(h(i), h(i+vec2(1,0)), f.x), mix(h(i+vec2(0,1)), h(i+vec2(1,1)), f.x), f.y); }
-    // BACKGROUND: soft charcoal smoke drifting over pale ivory, with film grain.
-    // Two blurred blobs sit on the left (as in the reference), slowly breathing and wandering.
+    // BACKGROUND: black sky with a moonlit haze on the left, two slow gray smoke blobs and twinkling stars, with film grain.
     vec3 backdrop(vec2 uv){
       // measured in units of the screen's short side, so blobs keep their size on phones and desktops
       float mn = min(uRes.x, uRes.y), W = uRes.x/mn, H = uRes.y/mn, t = uTime*.06;
       vec2 p = uv*vec2(W, H);
       p += (vec2(n2(p*1.3 + t), n2(p*1.3 - t + 7.)) - .5)*.22;          // slow liquid warp of the whole field
-      vec3 col = mix(vec3(.90,.885,.85), vec3(.953,.941,.906), smoothstep(.0, 1., uv.x)); // pale ivory, lighter to the right
+      vec3 col = mix(vec3(.022), vec3(.0), smoothstep(.0, 1., uv.x));   // black, a touch lifted on the left
       vec2 c1 = vec2(.30*W + .06*sin(t*1.7), .70*H + .05*cos(t*1.3));
       vec2 c2 = vec2(.26*W + .07*cos(t*1.2 + 1.), .27*H + .05*sin(t*1.5 + 2.));
       float b1 = exp(-dot(p - c1, p - c1)/(.11 + .015*sin(t*2.1)));
       float b2 = exp(-dot(p - c2, p - c2)/(.14 + .02*cos(t*1.8)));
-      float haze = exp(-pow(p.x - .15*W, 2.)/(.14*W*W))*.55;               // a wide cool veil down the left edge
-      col = mix(col, vec3(.82,.80,.78), haze);
-      col = mix(col, vec3(.58,.55,.56), b1*.42);                     // charcoal smoke
-      col = mix(col, vec3(.50,.46,.48), b2*.48);
+      float haze = exp(-pow(p.x - .15*W, 2.)/(.14*W*W))*.5;
+      col = mix(col, vec3(.10,.10,.105), haze);                      // moonlit veil
+      col = mix(col, vec3(.416), b1*.22);                            // Charcoal Gray smoke
+      col = mix(col, vec3(.58,.553,.514), b2*.18);                   // Moon Rock smoke
+      // stars: every star glows up and down on its own clock and phase, so some are always bright
+      // while others rest dim, and they keep trading places.
+      // layer 1: small dust stars in 3 px cells
+      vec2 sp = gl_FragCoord.xy/3.;
+      vec2 cell = floor(sp); float r = h(cell);
+      if (r > .984) {
+        vec2 o = vec2(h(cell+3.1), h(cell+7.7))*.6 + .2;
+        float d = length(fract(sp) - o);
+        float tw = .5 + .5*sin(6.2831*(uTime/(2.5 + h(cell+11.3)*4.5) + h(cell+5.9)));
+        tw = tw*tw*(3. - 2.*tw);
+        col += vec3(.886)*smoothstep(.6, .0, d)*mix(.12, 1.25, tw);
+      }
+      // layer 2: a few bright stars in 26 px cells that flare with a cross glint when it is their turn
+      vec2 bp = gl_FragCoord.xy/26.;
+      vec2 bc = floor(bp); float br = h(bc + 91.7);
+      if (br > .955) {
+        vec2 q = (fract(bp) - (vec2(h(bc+2.3), h(bc+8.1))*.4 + .3))*26.;   // pixels from the star
+        float tw = .5 + .5*sin(6.2831*(uTime/(3. + h(bc+13.7)*5.) + h(bc+4.4)));
+        float flash = pow(tw, 3.);
+        float core = exp(-dot(q, q)/1.6);
+        float cross = exp(-abs(q.y)*1.4)*exp(-abs(q.x)*.32) + exp(-abs(q.x)*1.4)*exp(-abs(q.y)*.32);
+        col += vec3(.886)*(core*(.25 + flash*1.3) + cross*flash*.6);
+      }
+      // shooting stars: three lanes, each on its own clock (about every 4.5, 6.5 and 8.5 s), so they
+      // sometimes take turns and sometimes cross the sky together. Each one enters from beyond the top or
+      // right edge and flies until it has left the screen, so none of them dies in the middle.
+      for (int k = 0; k < 3; k++) {
+        float fk = float(k);
+        float P = 4.5 + fk*2.;
+        float tt = uTime + fk*1.7;
+        float slot = floor(tt/P);
+        vec2 sd = vec2(slot, fk*13.1);
+        float sp2 = mn*(1.05 + .45*h(sd + 6.6));                      // pixels per second, scaled to the screen
+        float L = mn*(.16 + .12*h(sd + 7.3));                          // tail length
+        vec2 dir = normalize(vec2(-1., -.3 - .55*h(sd + 3.9)));
+        vec2 st = vec2(uRes.x*(.15 + 1.*h(sd + 1.1)), uRes.y + 4.);   // on or past the top edge; past the right means it enters from the right
+        float dur = (length(uRes) + L)/sp2;                            // long enough to leave the screen
+        float lt = tt - slot*P - h(sd + 4.2)*max(P - dur, 0.);
+        if (lt > 0. && lt < dur) {
+          vec2 head = st + dir*sp2*lt;
+          vec2 rel = gl_FragCoord.xy - head;
+          float along = dot(rel, -dir), across = abs(dot(rel, vec2(-dir.y, dir.x)));
+          float on = smoothstep(0., .12, lt);                           // quick ignition, no fade-out: it flies off the edge
+          float tail = along > 0. && along < L ? pow(1. - along/L, 2.)*exp(-across*across/1.5) : 0.;
+          float glow = exp(-dot(rel, rel)/6.);
+          col += vec3(.9, .9, .92)*(tail*.85 + glow*1.2)*on;
+        }
+      }
       // grain: fine, flickering a little like film
       float g = h(floor(gl_FragCoord.xy) + floor(uTime*10.)*31.) - .5;
-      return col + g*.11*uGrain;
+      return col + g*.05*uGrain;
     }
     void main(){
       vec2 d = vUv - .5; float r = length(d);
@@ -999,7 +1062,7 @@ const post = new THREE.ShaderMaterial({
       c = min(c, vec3(a));
       c += (h(vUv*uRes + fract(uTime*7.)*100.) - .5)*.07*uGrain*a;
       c *= 1. - smoothstep(.45, 1.05, r)*.65;
-      gl_FragColor = vec4(max(c, 0.) + backdrop(vUv)*(1. - a), 1.);
+      gl_FragColor = vec4(max(c, 0.)*uScene + backdrop(vUv)*(1. - a*uScene), 1.);
     }`,
   depthTest:false, depthWrite:false
 });
@@ -1013,7 +1076,7 @@ function resize(){
   renderer.setPixelRatio(dpr); renderer.setSize(w, h, false);
   rt.setSize(Math.round(w*dpr), Math.round(h*dpr));
   post.uniforms.uRes.value.set(w*dpr, h*dpr);
-  camera.aspect = w/h; mobile = w/h < .8; camera.updateProjectionMatrix();
+  camera.aspect = w/h; mobile = w/h < .8; camera.updateProjectionMatrix(); post.uniforms.uScene.value = mobile ? .5 : 1;
 }
 addEventListener("resize", resize);
 
@@ -1077,7 +1140,7 @@ $("swatches").innerHTML = Object.entries(CONFIG.tints).map(([k,t]) =>
 function apply(rebuild){
   const t = CONFIG.tints[settings.tint];
   U.uC1.value.set(t.c1); U.uC2.value.set(t.c2); U.uC3.value.set(t.c3); U.uEdge.value.set(t.edge);
-  ringMat.color.set(t.ring); ringDash.color.set(t.ring); satMat.color.set(t.ring); // dark lines read cleanly on the ivory backdrop
+  ringMat.color.set(t.ring); ringDash.color.set(t.ring); satMat.color.set(t.ring); // moon-gray lines on the black sky
 
   document.documentElement.style.setProperty("--tint", t.c3);
   document.documentElement.style.setProperty("--ok", t.c3);
@@ -1089,6 +1152,8 @@ function apply(rebuild){
   $("shardsOut").textContent = settings.shards; $("ringsOut").textContent = settings.rings;
   $("chromaOut").textContent = (+settings.chroma).toFixed(1)+"×"; $("grainOut").textContent = (+settings.grain).toFixed(1)+"×"; $("speedOut").textContent = (+settings.speed).toFixed(1)+"×";
 }
+$("footer").lastElementChild.appendChild($("tuneBtn"));
+const onScroll = () => document.documentElement.classList.toggle("scrolled", scrollY > 40); addEventListener("scroll", onScroll, { passive:true }); onScroll();
 $("tuneBtn").onclick = () => { const t = $("tune"), open = t.hidden; t.hidden = !open; $("tuneBtn").setAttribute("aria-expanded", open); if (open) t.querySelector("input:checked").focus(); };
 addEventListener("keydown", e => { if (e.key === "Escape" && !$("tune").hidden) { $("tune").hidden = true; $("tuneBtn").setAttribute("aria-expanded", false); $("tuneBtn").focus(); } });
 $("tune").addEventListener("input", e => {

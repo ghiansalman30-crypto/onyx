@@ -57,7 +57,7 @@
   "tune.rings": "軌道リング", "tune.speed": "動き", "tune.morph": "変形", "tune.withScroll": "スクロール連動", "tune.auto": "自動切替",
   "tune.liquid": "液体表面", "tune.reset": "初期設定に戻す",
   "js.online": "ネットワーク稼働中 · マイナー{n}人", "js.offline": "ネットワーク停止中", "js.roundEnds": "ラウンド終了まで{s}秒",
-  "js.endsIn": "残り{s}秒", "js.perRound": "/ ラウンド", "js.max": "最大", "js.noRounds": "まだ採掘されたラウンドはありません",
+  "js.endsIn": "残り{s}秒", "js.perRound": "/ ラウンド", "js.max": "最大", "js.noRounds": "まだ採掘されたラウンドはありません", "js.waitShares": "最初のシェアを待っています",
   "js.first": "最初のマイナーになろう", "js.secAgo": "{n}秒前", "js.minAgo": "{n}分前", "js.hAgo": "{n}時間前", "js.you": "あなた",
   "js.shares": "{n} シェア", "js.signAgain": "再サインイン（新しいキー）", "js.copied": "コピーしました", "js.menu": "メニュー", "js.close": "閉じる",
   "js.noWallet": "ウォレットが見つかりません。MetaMask、OKX Wallet、Rabby のいずれかを入れてから再試行してください。",

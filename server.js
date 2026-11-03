@@ -118,7 +118,9 @@ function settle() {
 setInterval(settle, 2_000);
 
 // ---------- wallet login ----------
-const logins = new Map(); // address -> { nonce, expires }
+// pending sign-ins, keyed by nonce: asking for a nonce for someone else's wallet cannot cancel theirs
+const logins = new Map(); // nonce -> { address, expires }
+setInterval(() => { const t = Date.now(); for (const [n, l] of logins) if (l.expires < t) logins.delete(n); }, 60_000);
 function loginMessage(address, nonce) {
   return `Sign in to ONYX\n\nThis signature only proves you own this wallet. It costs nothing and moves no funds.\n\nWallet: ${address}\nNonce: ${nonce}`;
 }
@@ -138,7 +140,7 @@ function newChallenge(miner) {
 }
 
 // ---------- http helpers ----------
-const MIME = { ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "text/javascript", ".png": "image/png", ".jpg": "image/jpeg", ".svg": "image/svg+xml", ".ico": "image/x-icon", ".webp": "image/webp", ".json": "application/json" };
+const MIME = { ".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "text/javascript", ".png": "image/png", ".jpg": "image/jpeg", ".svg": "image/svg+xml", ".ico": "image/x-icon", ".webp": "image/webp", ".json": "application/json", ".tgz": "application/gzip" };
 function send(res, code, body) {
   res.writeHead(code, { "Content-Type": "application/json", "Cache-Control": "no-store" });
   res.end(JSON.stringify(body));
@@ -207,7 +209,7 @@ async function api(req, res, url) {
     return send(res, 200, {
       activeMiners: recent.miners,
       hashrate: recent.work / (span / 1000), // hashes per second, estimated from shares
-      round, roundEndsAt: (round + 1) * ROUND_MS, serverTime: now,
+      round, firstRound: roundOf(GENESIS), roundEndsAt: (round + 1) * ROUND_MS, serverTime: now,
       emissionPerRound: emissionAt(now),
       nextHalvingAt: GENESIS + (Math.floor((now - GENESIS) / HALVING_MS) + 1) * HALVING_MS,
       circulating: db.prepare("SELECT COALESCE(SUM(earned), 0) s FROM miners").get().s,
@@ -233,18 +235,19 @@ async function api(req, res, url) {
     const address = url.searchParams.get("address");
     if (!isAddress(address)) return send(res, 400, { error: "invalid address" });
     const nonce = crypto.randomBytes(16).toString("hex");
-    logins.set(address.toLowerCase(), { nonce, address, expires: Date.now() + 5 * 60_000 }); // keep the exact spelling: it is part of the signed text
-    return send(res, 200, { message: loginMessage(address, nonce) });
+    if (logins.size > 50_000) logins.delete(logins.keys().next().value);
+    logins.set(nonce, { address, expires: Date.now() + 5 * 60_000 }); // keep the exact spelling: it is part of the signed text
+    return send(res, 200, { message: loginMessage(address, nonce), nonce });
   }
 
   if (route === "POST /api/auth/verify") {
-    const { address, signature } = await readBody(req);
-    if (!isAddress(address) || typeof signature !== "string") return send(res, 400, { error: "invalid request" });
-    const pending = logins.get(address.toLowerCase());
-    if (!pending || pending.expires < Date.now()) return send(res, 400, { error: "login expired, try again" });
-    logins.delete(address.toLowerCase());
+    const { address, signature, nonce } = await readBody(req);
+    if (!isAddress(address) || typeof signature !== "string" || typeof nonce !== "string") return send(res, 400, { error: "invalid request" });
+    const pending = logins.get(nonce);
+    if (!pending || pending.expires < Date.now() || pending.address !== address) return send(res, 400, { error: "login expired, try again" });
+    logins.delete(nonce);
     const { verifyMessage } = await import("viem");
-    const ok = await verifyMessage({ address, message: loginMessage(address, pending.nonce), signature }).catch(() => false);
+    const ok = await verifyMessage({ address, message: loginMessage(address, nonce), signature }).catch(() => false);
     if (!ok) return send(res, 401, { error: "signature does not match this wallet" });
     // a fresh key on every sign-in; the old one stops working (only its hash is stored)
     const apiKey = "onyx_" + crypto.randomBytes(20).toString("hex");
@@ -258,12 +261,12 @@ async function api(req, res, url) {
   if (route === "POST /api/check") {
     const m = minerFromAuth(req);
     if (!m) return send(res, 401, { error: "invalid API key" });
-    const { signature } = await readBody(req);
-    const pending = logins.get(m.address);
-    if (!pending || pending.expires < Date.now() || typeof signature !== "string") return send(res, 400, { error: "check expired, try again" });
-    logins.delete(m.address);
+    const { signature, nonce } = await readBody(req);
+    const pending = typeof nonce === "string" && logins.get(nonce);
+    if (!pending || pending.expires < Date.now() || pending.address.toLowerCase() !== m.address || typeof signature !== "string") return send(res, 400, { error: "check expired, try again" });
+    logins.delete(nonce);
     const { verifyMessage } = await import("viem");
-    const ok = await verifyMessage({ address: m.address, message: loginMessage(pending.address, pending.nonce), signature }).catch(() => false);
+    const ok = await verifyMessage({ address: m.address, message: loginMessage(pending.address, nonce), signature }).catch(() => false);
     if (!ok) return send(res, 401, { error: "signature does not match this miner's wallet" });
     db.prepare("UPDATE miners SET checked_at = ? WHERE address = ?").run(Date.now(), m.address);
     return send(res, 200, { ok: true, checkDueAt: Date.now() + CHECK_EVERY_MS });
@@ -328,7 +331,8 @@ http.createServer(async (req, res) => {
     if (!file.startsWith(PUBLIC + path.sep)) { res.writeHead(403); return res.end(); }
     fs.readFile(file, (err, buf) => {
       if (err) { res.writeHead(404, PAGE_HEADERS); return res.end("Not found"); }
-      res.writeHead(200, { ...PAGE_HEADERS, "Content-Type": MIME[path.extname(file)] || "application/octet-stream" });
+      const ext = path.extname(file), cache = [".png", ".jpg", ".webp", ".svg", ".ico", ".tgz"].includes(ext) || rel.startsWith("/vendor/") ? "public, max-age=86400" : "no-cache";
+      res.writeHead(200, { ...PAGE_HEADERS, "Content-Type": MIME[ext] || "application/octet-stream", "Cache-Control": cache });
       res.end(buf);
     });
   } catch (e) {

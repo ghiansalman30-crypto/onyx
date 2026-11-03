@@ -57,7 +57,7 @@
   "tune.rings": "궤도 고리", "tune.speed": "움직임", "tune.morph": "형태 변화", "tune.withScroll": "스크롤 연동", "tune.auto": "자동 순환",
   "tune.liquid": "액체 표면", "tune.reset": "기본값으로",
   "js.online": "네트워크 온라인 · 채굴자 {n}명", "js.offline": "네트워크 오프라인", "js.roundEnds": "라운드 종료까지 {s}초",
-  "js.endsIn": "{s}초 후 종료", "js.perRound": "/ 라운드", "js.max": "최대", "js.noRounds": "아직 채굴된 라운드가 없습니다",
+  "js.endsIn": "{s}초 후 종료", "js.perRound": "/ 라운드", "js.max": "최대", "js.noRounds": "아직 채굴된 라운드가 없습니다", "js.waitShares": "첫 번째 셰어를 기다리는 중",
   "js.first": "첫 번째 채굴자가 되세요", "js.secAgo": "{n}초 전", "js.minAgo": "{n}분 전", "js.hAgo": "{n}시간 전", "js.you": "나",
   "js.shares": "share {n}개", "js.signAgain": "다시 로그인 (새 키)", "js.copied": "복사됨", "js.menu": "메뉴", "js.close": "닫기",
   "js.noWallet": "지갑을 찾을 수 없습니다. MetaMask, OKX Wallet 또는 Rabby를 설치한 뒤 다시 시도하세요.",

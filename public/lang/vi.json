@@ -57,7 +57,7 @@
   "tune.rings": "Vòng quỹ đạo", "tune.speed": "Chuyển động", "tune.morph": "Biến hình", "tune.withScroll": "Theo cuộn", "tune.auto": "Tự động",
   "tune.liquid": "Bề mặt lỏng", "tune.reset": "Khôi phục mặc định",
   "js.online": "Mạng trực tuyến · {n} thợ đào", "js.offline": "mạng ngoại tuyến", "js.roundEnds": "vòng kết thúc sau {s}s",
-  "js.endsIn": "kết thúc sau {s}s", "js.perRound": "/ vòng", "js.max": "tối đa", "js.noRounds": "Chưa có vòng nào được đào",
+  "js.endsIn": "kết thúc sau {s}s", "js.perRound": "/ vòng", "js.max": "tối đa", "js.noRounds": "Chưa có vòng nào được đào", "js.waitShares": "Đang chờ share đầu tiên",
   "js.first": "Hãy là thợ đào đầu tiên", "js.secAgo": "{n}s trước", "js.minAgo": "{n} phút trước", "js.hAgo": "{n} giờ trước", "js.you": "bạn",
   "js.shares": "{n} share", "js.signAgain": "Đăng nhập lại (key mới)", "js.copied": "Đã sao chép", "js.menu": "MENU", "js.close": "ĐÓNG",
   "js.noWallet": "Không tìm thấy ví. Hãy cài MetaMask, OKX Wallet hoặc Rabby rồi thử lại.",
