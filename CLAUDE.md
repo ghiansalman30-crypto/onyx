@@ -16,7 +16,7 @@ ONYX is a coin you mine from a terminal with SHA-256 proof-of-work. It is **not 
 
 - `server.js`: website, API and mining engine, on Node 22.5+ (uses `node:sqlite`). Runs on http://127.0.0.1:4000.
 - `cli/`: the `onyx` CLI (`login`, `mine`, `status`). `public/onyx-cli.tgz` is the packed copy the site serves; rebuild it with `npm pack` in `cli/` after any CLI change.
-- `public/index.html`: the whole site, one file. It is the ORRERY template (three.js r128, self-hosted in `public/vendor`) rebranded, CONFIG-driven, in 8 languages: EN and ID inline, the others in `public/lang/*.json`.
+- `public/index.html`: the whole site, one file. It is a downloaded landing-page template (three.js r128, self-hosted in `public/vendor`) rebranded, CONFIG-driven, in 8 languages: EN and ID inline, the others in `public/lang/*.json`.
 
 ## Visual decisions the owner made (keep them)
 
